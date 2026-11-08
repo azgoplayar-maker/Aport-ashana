@@ -1,0 +1,413 @@
+```html
+<!DOCTYPE html>
+<html lang="kk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>APORT ASHANA — ЖЕДЕЛ ТАМАҚ ЖЕТКІЗУ ❤️</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- React & ReactDOM -->
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    
+    <!-- Babel JS Compiler -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    
+    <!-- Leaflet CSS & JS for Interactive Map -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <style>
+      .custom-scrollbar::-webkit-scrollbar {
+        width: 4px;
+      }
+      .custom-scrollbar::-webkit-scrollbar-track {
+        background: #180E0A;
+      }
+      .custom-scrollbar::-webkit-scrollbar-thumb {
+        background: #3A2216;
+        border-radius: 4px;
+      }
+      .no-scrollbar::-webkit-scrollbar {
+        display: none;
+      }
+      .no-scrollbar {
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+      }
+    </style>
+</head>
+<body class="bg-[#1F1410] text-[#FDF8F5] antialiased selection:bg-[#D4AF37] selection:text-[#1F1410]">
+    <div id="root"></div>
+
+    <script type="text/babel">
+      const { useState, useEffect, useMemo, useRef } = React;
+
+      // --- INITIAL BRANCH DATA (ATYRAU) ---
+      const INITIAL_BRANCHES = [
+        { id: 1, name: 'APORT ASHANA — Азаттық даңғылы', address: 'Азаттық даңғылы, 67, Атырау', hours: '08:00 - 23:00', coords: [47.1064, 51.9134] },
+        { id: 2, name: 'APORT ASHANA — Сәтпаев көшесі', address: 'Сәтпаев көшесі, 18, Атырау', hours: '09:00 - 24:00', coords: [47.0982, 51.9012] },
+        { id: 3, name: 'APORT ASHANA — Нұрсая мөлтек ауданы', address: 'Нұрсая м/а, 11-үй, Атырау', hours: '08:30 - 22:30', coords: [47.1215, 51.9380] },
+        { id: 4, name: 'APORT ASHANA — Авангард', address: 'Авангард 2-м/а, 4А, Атырау', hours: '08:00 - 23:00', coords: [47.0850, 51.8845] },
+        { id: 5, name: 'APORT ASHANA — Балықшы', address: 'Құнанбаев көшесі, 22, Атырау', hours: '09:00 - 23:00', coords: [47.0620, 51.8620] }
+      ];
+
+      // --- INITIAL PRODUCTS ---
+      const INITIAL_PRODUCTS = [
+        { id: 'm1', category: 'НЕГІЗГІ ТАҒАМДАР', name: 'Плов', price: 1550, weight: '300 гр', image: 'https://images.unsplash.com/photo-1633964913295-ceb43826e7c9?auto=format&fit=crop&q=80&w=600', description: 'Дәмді өзбекше плов, сиыр еті мен сәбіз қосылған', available: true },
+        { id: 'm2', category: 'НЕГІЗГІ ТАҒАМДАР', name: 'Жаренный лагман', price: 1800, weight: '300 гр', image: 'https://images.unsplash.com/photo-1569718212165-3a8278d5f624?auto=format&fit=crop&q=80&w=600', description: 'Қолдан созылған лапша, көкөністер және етпен қуырылған', available: true },
+        { id: 'm3', category: 'НЕГІЗГІ ТАҒАМДАР', name: 'Бешбармақ', price: 2050, weight: '400 гр', image: 'https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&q=80&w=600', description: 'Дәстүрлі қазақ бешбармағы, жұқа жайма және нәзік ет', available: true },
+        { id: 'm4', category: 'НЕГІЗГІ ТАҒАМДАР', name: 'Манты', price: 1600, weight: '5 дана', image: 'https://images.unsplash.com/photo-1541696432-82c6da8ce7bf?auto=format&fit=crop&q=80&w=600', description: 'Буда піскен шырынды сиыр еті мантысы', available: true },
+        { id: 'm5', category: 'НЕГІЗГІ ТАҒАМДАР', name: 'Қуырдақ', price: 2200, weight: '350 гр', image: 'https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&q=80&w=600', description: 'Жас еттен дайындалған хош иісті қуырдақ', available: true },
+        { id: 'm6', category: 'НЕГІЗГІ ТАҒАМДАР', name: 'Котлет с пюре', price: 1700, weight: '350 гр', image: 'https://images.unsplash.com/photo-1529042410759-befb1204b468?auto=format&fit=crop&q=80&w=600', description: 'Үй стиліндегі жұмсақ котлет және картоп пюресі', available: true },
+        { id: 'g1', category: 'ГАРНИРЛЕР', name: 'Рис', price: 320, weight: '150 гр', image: 'https://images.unsplash.com/photo-1516684732162-798a0062be99?auto=format&fit=crop&q=80&w=600', description: 'Буға піскен аппақ ақ күріш', available: true },
+        { id: 'g2', category: 'ГАРНИРЛЕР', name: 'Гречка', price: 400, weight: '150 гр', image: 'https://images.unsplash.com/photo-1586201375761-83865001e31c?auto=format&fit=crop&q=80&w=600', description: 'Сары маймен пісірілген қарамық', available: true },
+        { id: 'g3', category: 'ГАРНИРЛЕР', name: 'Ризотта', price: 450, weight: '150 гр', image: 'https://images.unsplash.com/photo-1633964913295-ceb43826e7c9?auto=format&fit=crop&q=80&w=600', description: 'Кілегейлі ризотто күріші', available: true },
+        { id: 'c1', category: 'ТАУЫҚ ЕТТЕРІ', name: 'Курица в томатном соусе', price: 1200, weight: '150 гр', image: 'https://images.unsplash.com/photo-1603894584373-5ac82b2ae398?auto=format&fit=crop&q=80&w=600', description: '120 гр қою бөлігі, 30 гр сұйық соусы', available: true },
+        { id: 'c2', category: 'ТАУЫҚ ЕТТЕРІ', name: 'Курица кисло-сладкий', price: 1150, weight: '150 гр', image: 'https://images.unsplash.com/photo-1525755662778-989d0524087e?auto=format&fit=crop&q=80&w=600', description: '120 гр қою бөлігі, 30 гр сұйық соусы', available: true },
+        { id: 's1', category: 'СОРПАЛАР', name: 'Кеспе', price: 1400, weight: '350 гр', image: 'https://images.unsplash.com/photo-1547592166-23ac45744acd?auto=format&fit=crop&q=80&w=600', description: 'Үй кеспесі, тауық сорпасы мен ет', available: true },
+        { id: 's2', category: 'СОРПАЛАР', name: 'Сорпа', price: 1200, weight: '350 гр', image: 'https://images.unsplash.com/photo-1547592166-23ac45744acd?auto=format&fit=crop&q=80&w=600', description: 'Қою сиыр еті сорпасы', available: true },
+        { id: 'sl1', category: 'САЛАТТАР', name: 'Оливье салаты', price: 900, weight: '200 гр', image: 'https://images.unsplash.com/photo-1540420773420-3366772f4999?auto=format&fit=crop&q=80&w=600', description: 'Дәстүрлі Оливье салаты', available: true },
+        { id: 'sl2', category: 'САЛАТТАР', name: 'Свежий салат', price: 800, weight: '200 гр', image: 'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?auto=format&fit=crop&q=80&w=600', description: 'Қияр, қызанақ, өсімдік майы қосылған балғын салат', available: true },
+        { id: 'd1', category: 'СУСЫНДАР', name: 'Компот', price: 400, weight: '0.5 л', image: 'https://images.unsplash.com/photo-1551024709-8f23befc6f87?auto=format&fit=crop&q=80&w=600', description: 'Үйде дайындалған табиғи жеміс компоты', available: true },
+        { id: 'd2', category: 'СУСЫНДАР', name: 'Морс', price: 450, weight: '0.5 л', image: 'https://images.unsplash.com/photo-1546171753-97d7676e4602?auto=format&fit=crop&q=80&w=600', description: 'Бүлдірген мен жидектерден жасалған сергіткіш морс', available: true },
+        { id: 'd3', category: 'СУСЫНДАР', name: 'Coca-Cola', price: 500, weight: '0.5 л', image: 'https://images.unsplash.com/photo-1622483767028-3f66f32aef97?auto=format&fit=crop&q=80&w=600', description: 'Салқындатылған Coca-Cola', available: true },
+        { id: 'd4', category: 'СУСЫНДАР', name: 'Fanta', price: 500, weight: '0.5 л', image: 'https://images.unsplash.com/photo-1624517452488-04869289c4ca?auto=format&fit=crop&q=80&w=600', description: 'Апельсин дәмі бар Fanta', available: true },
+        { id: 'd5', category: 'СУСЫНДАР', name: 'Sprite', price: 500, weight: '0.5 л', image: 'https://images.unsplash.com/photo-1625772299848-391b6a87d7b3?auto=format&fit=crop&q=80&w=600', description: 'Лимон-лайм салқын сусыны', available: true },
+        { id: 'd6', category: 'СУСЫНДАР', name: 'Айран', price: 400, weight: '0.5 л', image: 'https://images.unsplash.com/photo-1528751014936-863e6e7a319c?auto=format&fit=crop&q=80&w=600', description: 'Ұлттық салқын айран', available: true },
+        { id: 'd7', category: 'СУСЫНДАР', name: 'Шай', price: 300, weight: '1 л', image: 'https://images.unsplash.com/photo-1576092768241-dec231879fc3?auto=format&fit=crop&q=80&w=600', description: 'Қою сүтті қазақша шай', available: true },
+        { id: 'd8', category: 'СУСЫНДАР', name: 'Су', price: 250, weight: '0.5 л', image: 'https://images.unsplash.com/photo-1560023907-5f339617ea30?auto=format&fit=crop&q=80&w=600', description: 'Табиғи газдалмаған су', available: true }
+      ];
+
+      const CATEGORIES = [
+        'НЕГІЗГІ ТАҒАМДАР',
+        'КОМБО ТАҒАМДАР',
+        'ГАРНИРЛЕР',
+        'ТАУЫҚ ЕТТЕРІ',
+        'САЛАТТАР',
+        'СОРПАЛАР',
+        'СУСЫНДАР'
+      ];
+
+      function App() {
+        const [selectedBranch, setSelectedBranch] = useState(() => {
+          const saved = localStorage.getItem('aport_selected_branch');
+          return saved ? JSON.parse(saved) : null;
+        });
+        const [products, setProducts] = useState(INITIAL_PRODUCTS);
+        const [branches, setBranches] = useState(INITIAL_BRANCHES);
+        const [cart, setCart] = useState(() => {
+          const saved = localStorage.getItem('aport_cart');
+          return saved ? JSON.parse(saved) : [];
+        });
+
+        const [activeCategory, setActiveCategory] = useState('НЕГІЗГІ ТАҒАМДАР');
+        const [isTrayOpen, setIsTrayOpen] = useState(false);
+        const [showOrderModal, setShowOrderModal] = useState(false);
+        const [showAdminModal, setShowAdminModal] = useState(false);
+        const [isAdminLoggedIn, setIsAdminLoggedIn] = useState(false);
+        const [adminPassword, setAdminPassword] = useState('');
+
+        const [selectedGarnish, setSelectedGarnish] = useState(null);
+        const [selectedChicken, setSelectedChicken] = useState(null);
+
+        const [orderForm, setOrderForm] = useState({
+          name: '',
+          phone: '',
+          address: '',
+          orderType: 'delivery',
+          comment: ''
+        });
+
+        useEffect(() => {
+          if (selectedBranch) {
+            localStorage.setItem('aport_selected_branch', JSON.stringify(selectedBranch));
+          }
+        }, [selectedBranch]);
+
+        useEffect(() => {
+          localStorage.setItem('aport_cart', JSON.stringify(cart));
+        }, [cart]);
+
+        const garnishes = useMemo(() => products.filter(p => p.category === 'ГАРНИРЛЕР' && p.available), [products]);
+        const chickens = useMemo(() => products.filter(p => p.category === 'ТАУЫҚ ЕТТЕРІ' && p.available), [products]);
+
+        const addToCart = (product) => {
+          setCart(prev => {
+            const existing = prev.find(item => item.cartId === product.id);
+            if (existing) {
+              return prev.map(item => item.cartId === product.id ? { ...item, quantity: item.quantity + 1 } : item);
+            }
+            return [...prev, {
+              cartId: product.id,
+              isCombo: false,
+              name: product.name,
+              price: product.price,
+              image: product.image,
+              weight: product.weight,
+              quantity: 1
+            }];
+          });
+        };
+
+        const addComboToCart = () => {
+          if (!selectedGarnish || !selectedChicken) return;
+          const comboId = `combo-${selectedGarnish.id}-${selectedChicken.id}`;
+          const comboPrice = selectedGarnish.price + selectedChicken.price;
+          const comboName = `${selectedGarnish.name} + ${selectedChicken.name}`;
+
+          setCart(prev => {
+            const existing = prev.find(item => item.cartId === comboId);
+            if (existing) {
+              return prev.map(item => item.cartId === comboId ? { ...item, quantity: item.quantity + 1 } : item);
+            }
+            return [...prev, {
+              cartId: comboId,
+              isCombo: true,
+              name: comboName,
+              garnishName: selectedGarnish.name,
+              garnishPrice: selectedGarnish.price,
+              chickenName: selectedChicken.name,
+              chickenPrice: selectedChicken.price,
+              price: comboPrice,
+              image: selectedChicken.image,
+              quantity: 1
+            }];
+          });
+        };
+
+        const updateQuantity = (cartId, delta) => {
+          setCart(prev => prev.map(item => {
+            if (item.cartId === cartId) {
+              const newQty = item.quantity + delta;
+              return newQty > 0 ? { ...item, quantity: newQty } : null;
+            }
+            return item;
+          }).filter(Boolean));
+        };
+
+        const removeFromCart = (cartId) => {
+          setCart(prev => prev.filter(item => item.cartId !== cartId));
+        };
+
+        const cartTotal = useMemo(() => cart.reduce((sum, item) => sum + (item.price * item.quantity), 0), [cart]);
+        const totalItemCount = useMemo(() => cart.reduce((sum, item) => sum + item.quantity, 0), [cart]);
+
+        const handleSendWhatsAppOrder = (e) => {
+          e.preventDefault();
+          if (cart.length === 0) return;
+
+          let itemsText = cart.map((item, index) => {
+            if (item.isCombo) {
+              return `${index + 1}. ${item.name} (${item.quantity}x):\n   - ${item.garnishName} — ${item.garnishPrice}₸\n   - ${item.chickenName} — ${item.chickenPrice}₸\n   - Комплект сомасы: ${item.price * item.quantity}₸`;
+            }
+            return `${index + 1}. ${item.name} × ${item.quantity} — ${item.price * item.quantity}₸`;
+          }).join('\n\n');
+
+          const message = `Сәлеметсіз бе! ❤️\nAPORT ASHANA-дан тапсырыс!\n\n📍 Филиал: ${selectedBranch ? selectedBranch.name : 'Таңдалмаған'}\n\n👤 Аты-жөні: ${orderForm.name}\n📞 Телефон: ${orderForm.phone}\n📍 Мекенжай: ${orderForm.orderType === 'delivery' ? orderForm.address : 'Өзі алып кету'}\n🚚 Тапсырыс түрі: ${orderForm.orderType === 'delivery' ? 'Жеткізу' : 'Өзі алып кету'}\n\n🛒 ТАПСЫРЫС:\n\n${itemsText}\n\n💰 ЖАЛПЫ СОММА: ${cartTotal}₸\n\n📝 Қосымша: ${orderForm.comment || 'Жоқ'}\n\nAPORT ASHANA ❤️`;
+
+          window.open(`https://wa.me/77785802308?text=${encodeURIComponent(message)}`, '_blank');
+          setShowOrderModal(false);
+        };
+
+        return (
+          <div className="min-h-screen flex flex-col">
+            {/* HEADER */}
+            <header className="sticky top-0 z-40 bg-[#2A1B15]/95 backdrop-blur-md border-b border-[#3D291F] px-4 py-3 flex items-center justify-between">
+              <div className="flex items-center space-x-3 cursor-pointer" onClick={() => setSelectedBranch(null)}>
+                <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-[#D4AF37] to-[#F3E5AB] flex items-center justify-center text-[#1F1410] font-black text-xl border border-[#F3E5AB]">
+                  A
+                </div>
+                <div>
+                  <h1 className="font-bold text-lg leading-none text-[#F3E5AB]">APORT ASHANA</h1>
+                  <p className="text-[10px] text-[#D4AF37] uppercase font-semibold mt-0.5">ЖЕДЕЛ ТАМАҚ ЖЕТКІЗУ ❤️</p>
+                </div>
+              </div>
+
+              <div className="flex items-center space-x-2">
+                <button 
+                  onClick={() => setIsTrayOpen(!isTrayOpen)}
+                  className="lg:hidden relative bg-gradient-to-r from-[#D4AF37] to-[#B8860B] text-[#1F1410] font-bold px-3 py-1.5 rounded-full text-xs shadow"
+                >
+                  Поднос ({totalItemCount})
+                </button>
+              </div>
+            </header>
+
+            {/* MAIN CONTENT */}
+            {!selectedBranch ? (
+              <main className="flex-1 max-w-5xl mx-auto p-4 w-full">
+                <div className="text-center my-6">
+                  <span className="text-[#D4AF37] text-xs font-bold uppercase tracking-widest bg-[#3D291F] px-3 py-1 rounded-full">Атырау қаласы</span>
+                  <h2 className="text-2xl font-black text-[#F3E5AB] mt-2">ФИЛИАЛДЫ ТАҢДАҢЫЗ</h2>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {branches.map(b => (
+                    <div key={b.id} className="bg-[#2A1B15] border border-[#3D291F] rounded-xl p-4 flex flex-col justify-between">
+                      <div>
+                        <h3 className="font-bold text-[#F3E5AB]">{b.name}</h3>
+                        <p className="text-xs text-gray-300 mt-1">📍 {b.address}</p>
+                        <p className="text-xs text-gray-400 mt-0.5">⏰ {b.hours}</p>
+                      </div>
+                      <button 
+                        onClick={() => setSelectedBranch(b)}
+                        className="mt-4 w-full bg-gradient-to-r from-[#D4AF37] to-[#B8860B] text-[#1F1410] font-bold py-2 rounded-lg text-xs uppercase"
+                      >
+                        Осы филиалды таңдау
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              </main>
+            ) : (
+              <main className="flex-1 max-w-7xl mx-auto p-4 lg:flex lg:gap-6 w-full">
+                {/* MENU */}
+                <div className="flex-1">
+                  <div className="bg-[#2A1B15] border border-[#3D291F] rounded-xl p-4 mb-4 text-center">
+                    <h2 className="text-xl font-bold text-[#F3E5AB]">ҚОШ КЕЛДІҢІЗ ❤️ БІЗДІҢ МӘЗІР</h2>
+                    <p className="text-xs text-gray-400">Атырау • {selectedBranch.name}</p>
+                  </div>
+
+                  {/* CATEGORIES */}
+                  <div className="flex space-x-2 overflow-x-auto pb-2 mb-4 no-scrollbar">
+                    {CATEGORIES.map(cat => (
+                      <button
+                        key={cat}
+                        onClick={() => setActiveCategory(cat)}
+                        className={`px-4 py-2 rounded-full text-xs font-bold whitespace-nowrap ${activeCategory === cat ? 'bg-[#D4AF37] text-[#1F1410]' : 'bg-[#2A1B15] text-gray-300 border border-[#3D291F]'}`}
+                      >
+                        {cat}
+                      </button>
+                    ))}
+                  </div>
+
+                  {/* COMBO SYSTEM */}
+                  {activeCategory === 'КОМБО ТАҒАМДАР' && (
+                    <div className="bg-[#2A1B15] border-2 border-[#D4AF37]/50 rounded-2xl p-4 mb-6">
+                      <h3 className="text-lg font-bold text-[#F3E5AB] text-center mb-4">ӨЗ КОМБОҢДЫ ЖАСА</h3>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="bg-[#1F1410] p-3 rounded-xl border border-[#3D291F]">
+                          <p className="text-xs font-bold text-[#D4AF37] mb-2">1. Гарнир таңдаңыз:</p>
+                          {garnishes.map(g => (
+                            <div key={g.id} onClick={() => setSelectedGarnish(g)} className={`p-2 rounded mb-1 text-xs flex justify-between cursor-pointer ${selectedGarnish?.id === g.id ? 'bg-[#3D291F] border border-[#D4AF37]' : 'bg-[#2A1B15]'}`}>
+                              <span>{g.name}</span>
+                              <span className="font-bold text-[#D4AF37]">{g.price}₸</span>
+                            </div>
+                          ))}
+                        </div>
+                        <div className="bg-[#1F1410] p-3 rounded-xl border border-[#3D291F]">
+                          <p className="text-xs font-bold text-[#D4AF37] mb-2">2. Тауық етін таңдаңыз:</p>
+                          {chickens.map(c => (
+                            <div key={c.id} onClick={() => setSelectedChicken(c)} className={`p-2 rounded mb-1 text-xs flex justify-between cursor-pointer ${selectedChicken?.id === c.id ? 'bg-[#3D291F] border border-[#D4AF37]' : 'bg-[#2A1B15]'}`}>
+                              <span>{c.name}</span>
+                              <span className="font-bold text-[#D4AF37]">{c.price}₸</span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                      <div className="mt-4 pt-3 border-t border-[#3D291F] flex items-center justify-between">
+                        <span className="text-xs font-bold text-[#F3E5AB]">
+                          {selectedGarnish && selectedChicken ? `${selectedGarnish.name} + ${selectedChicken.name}` : 'Таңдау жасаңыз'}
+                        </span>
+                        <button disabled={!selectedGarnish || !selectedChicken} onClick={addComboToCart} className="bg-[#D4AF37] text-[#1F1410] font-bold px-4 py-2 rounded text-xs disabled:opacity-50">
+                          Подносқа қосу ({selectedGarnish && selectedChicken ? selectedGarnish.price + selectedChicken.price : 0}₸)
+                        </button>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* PRODUCTS GRID */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+                    {products.filter(p => p.category === activeCategory).map(product => (
+                      <div key={product.id} className="bg-[#2A1B15] border border-[#3D291F] rounded-xl overflow-hidden flex flex-col justify-between">
+                        <img src={product.image} alt={product.name} className="h-36 w-full object-cover" />
+                        <div className="p-3">
+                          <h4 className="font-bold text-sm text-[#F3E5AB]">{product.name}</h4>
+                          <p className="text-[11px] text-gray-400 mt-1">{product.description}</p>
+                          <div className="flex items-center justify-between mt-3">
+                            <span className="font-black text-[#D4AF37]">{product.price}₸</span>
+                            <button onClick={() => addToCart(product)} className="bg-[#3D291F] text-[#F3E5AB] px-3 py-1 rounded text-xs font-bold hover:bg-[#D4AF37] hover:text-[#1F1410]">
+                              + Қосу
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* SHOPPING TRAY */}
+                <aside className={`fixed lg:static inset-y-0 right-0 z-50 w-80 bg-[#180E0A] border-4 border-[#3A2216] p-4 flex flex-col justify-between transition-transform ${isTrayOpen ? 'translate-x-0' : 'translate-x-full lg:translate-x-0'}`}>
+                  <div>
+                    <div className="flex justify-between items-center pb-2 border-b border-[#3A2216]">
+                      <h3 className="font-bold text-[#F3E5AB]">ҚОҢЫР ПОДНОС</h3>
+                      <button onClick={() => setIsTrayOpen(false)} className="lg:hidden text-gray-400">✕</button>
+                    </div>
+
+                    <div className="mt-4 space-y-2 max-h-[60vh] overflow-y-auto">
+                      {cart.length === 0 ? (
+                        <p className="text-xs text-center text-gray-500 py-8">Поднос бос</p>
+                      ) : (
+                        cart.map(item => (
+                          <div key={item.cartId} className="bg-[#241611] p-2 rounded border border-[#3A2216] flex justify-between items-center text-xs">
+                            <div>
+                              <p className="font-bold text-[#F3E5AB]">{item.name}</p>
+                              <p className="text-[#D4AF37] font-bold">{item.price * item.quantity}₸</p>
+                            </div>
+                            <div className="flex items-center space-x-2">
+                              <button onClick={() => updateQuantity(item.cartId, -1)} className="px-2 py-0.5 bg-[#180E0A] text-[#D4AF37] font-bold rounded">-</button>
+                              <span>{item.quantity}</span>
+                              <button onClick={() => updateQuantity(item.cartId, 1)} className="px-2 py-0.5 bg-[#180E0A] text-[#D4AF37] font-bold rounded">+</button>
+                            </div>
+                          </div>
+                        ))
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="pt-3 border-t border-[#3A2216]">
+                    <div className="flex justify-between font-bold text-sm mb-3">
+                      <span>ЖАЛПЫ:</span>
+                      <span className="text-[#F3E5AB]">{cartTotal}₸</span>
+                    </div>
+                    <button disabled={cart.length === 0} onClick={() => setShowOrderModal(true)} className="w-full bg-[#D4AF37] text-[#1F1410] font-bold py-2.5 rounded-lg text-xs uppercase disabled:opacity-50">
+                      ТАПСЫРЫС БЕРУ ❤️
+                    </button>
+                  </div>
+                </aside>
+              </main>
+            )}
+
+            {/* ORDER FORM MODAL */}
+            {showOrderModal && (
+              <div className="fixed inset-0 bg-black/80 flex items-center justify-center p-4 z-50">
+                <div className="bg-[#2A1B15] border border-[#3D291F] p-5 rounded-2xl max-w-sm w-full">
+                  <h3 className="font-bold text-[#F3E5AB] mb-3">Жеткізу ақпараты</h3>
+                  <form onSubmit={handleSendWhatsAppOrder} className="space-y-3 text-xs">
+                    <input required placeholder="Аты-жөніңіз" value={orderForm.name} onChange={e => setOrderForm({...orderForm, name: e.target.value})} className="w-full bg-[#1F1410] p-2 rounded border border-[#3D291F] text-white" />
+                    <input required placeholder="Телефон нөмірі" value={orderForm.phone} onChange={e => setOrderForm({...orderForm, phone: e.target.value})} className="w-full bg-[#1F1410] p-2 rounded border border-[#3D291F] text-white" />
+                    <input required placeholder="Жеткізу мекенжайы" value={orderForm.address} onChange={e => setOrderForm({...orderForm, address: e.target.value})} className="w-full bg-[#1F1410] p-2 rounded border border-[#3D291F] text-white" />
+                    <button type="submit" className="w-full bg-emerald-600 text-white font-bold py-2.5 rounded-lg mt-2">
+                      WhatsApp арқылы жіберу
+                    </button>
+                    <button type="button" onClick={() => setShowOrderModal(false)} className="w-full text-gray-400 py-1">Жабу</button>
+                  </form>
+                </div>
+              </div>
+            )}
+          </div>
+        );
+      }
+
+      ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+    </script>
+</body>
+</html>
+```
