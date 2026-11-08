@@ -59,7 +59,7 @@
     <script type="text/babel">
       const { useState, useEffect, useMemo, useRef } = React;
 
-      // --- ATYRAU 5 REAL BRANCHES DATA ---
+      // --- ATYRAU 5 REAL BRANCHES DATA (ALL ROUTED TO +77026480887) ---
       const ATYRAU_BRANCHES = [
         {
           id: 1,
@@ -67,8 +67,8 @@
           address: 'Муса Баймуханова улица, 48/1, 1 этаж, Атырау',
           hours: '08:00 - 23:00',
           coords: [47.1162, 51.9051],
-          whatsapp: '87785802308',
-          displayPhone: '+7 (778) 580-23-08',
+          whatsapp: '87026480887',
+          displayPhone: '+7 (702) 648-08-87',
           pinCode: '4810'
         },
         {
@@ -77,8 +77,8 @@
           address: 'Махамбета Утемисова улица, 114в, Атырау',
           hours: '08:30 - 23:30',
           coords: [47.1085, 51.9168],
-          whatsapp: '87785802308',
-          displayPhone: '+7 (778) 580-23-08',
+          whatsapp: '87026480887',
+          displayPhone: '+7 (702) 648-08-87',
           pinCode: '1140'
         },
         {
@@ -87,8 +87,8 @@
           address: 'микрорайон Сарыарка, 40, Атырау',
           hours: '09:00 - 23:00',
           coords: [47.1420, 51.9210],
-          whatsapp: '87785802308',
-          displayPhone: '+7 (778) 580-23-08',
+          whatsapp: '87026480887',
+          displayPhone: '+7 (702) 648-08-87',
           pinCode: '4040'
         },
         {
@@ -107,8 +107,8 @@
           address: 'микрорайон Алмагуль, 1, 1 этаж, Атырау',
           hours: '08:00 - 24:00',
           coords: [47.1195, 51.9392],
-          whatsapp: '87785802308',
-          displayPhone: '+7 (778) 580-23-08',
+          whatsapp: '87026480887',
+          displayPhone: '+7 (702) 648-08-87',
           pinCode: '1001'
         }
       ];
@@ -418,17 +418,17 @@
       // --- MAIN APP COMPONENT ---
       function App() {
         const [selectedBranch, setSelectedBranch] = useState(() => {
-          const saved = localStorage.getItem('aport_selected_branch_v2');
+          const saved = localStorage.getItem('aport_selected_branch_v3');
           return saved ? JSON.parse(saved) : null;
         });
 
         const [products, setProducts] = useState(() => {
-          const saved = localStorage.getItem('aport_products_v2');
+          const saved = localStorage.getItem('aport_products_v3');
           return saved ? JSON.parse(saved) : INITIAL_PRODUCTS;
         });
 
         const [cart, setCart] = useState(() => {
-          const saved = localStorage.getItem('aport_cart_v2');
+          const saved = localStorage.getItem('aport_cart_v3');
           return saved ? JSON.parse(saved) : [];
         });
 
@@ -455,16 +455,16 @@
 
         useEffect(() => {
           if (selectedBranch) {
-            localStorage.setItem('aport_selected_branch_v2', JSON.stringify(selectedBranch));
+            localStorage.setItem('aport_selected_branch_v3', JSON.stringify(selectedBranch));
           }
         }, [selectedBranch]);
 
         useEffect(() => {
-          localStorage.setItem('aport_cart_v2', JSON.stringify(cart));
+          localStorage.setItem('aport_cart_v3', JSON.stringify(cart));
         }, [cart]);
 
         useEffect(() => {
-          localStorage.setItem('aport_products_v2', JSON.stringify(products));
+          localStorage.setItem('aport_products_v3', JSON.stringify(products));
         }, [products]);
 
         const isProductAvailable = (product) => {
@@ -647,7 +647,7 @@
                     ФИЛИАЛДЫ ТАҢДАҢЫЗ
                   </h2>
                   <p className="text-xs sm:text-sm text-gray-300 mt-1">
-                    Тапсырыс өз филиалыңыздың WhatsApp нөміріне баруы үшін мекенжайды таңдаңыз
+                    Тапсырысты орындау үшін мекенжайды таңдаңыз (WhatsApp: +7 702 648 0887)
                   </p>
                 </div>
 
@@ -702,7 +702,7 @@
                       ҚОШ КЕЛДІҢІЗ ❤️ МӘЗІР
                     </h2>
                     <p className="text-xs text-gray-300 mt-1">
-                      Тапсырыс тікелей филиалдың WhatsApp-ына түседі: <strong className="text-[#D4AF37]">{selectedBranch.displayPhone}</strong>
+                      Тапсырыс қабылдау нөмірі: <strong className="text-[#D4AF37]">{selectedBranch.displayPhone}</strong>
                     </p>
                   </div>
 
@@ -936,7 +936,7 @@
                 <div className="bg-[#2A1B15] border border-[#3D291F] rounded-2xl max-w-md w-full p-5 shadow-2xl relative">
                   <button onClick={() => setShowOrderModal(false)} className="absolute top-4 right-4 text-gray-400">✕</button>
                   <h3 className="text-lg font-bold text-[#F3E5AB]">Тапсырысты Рәсімдеу</h3>
-                  <p className="text-xs text-[#D4AF37] mt-0.5">Тапсырыс {selectedBranch?.name} WhatsApp-ына жіберіледі</p>
+                  <p className="text-xs text-[#D4AF37] mt-0.5">Тапсырыс +7 (702) 648-08-87 WhatsApp-ына жіберіледі</p>
 
                   <form onSubmit={handleSendWhatsAppOrder} className="space-y-3 mt-4 text-xs">
                     <div>
@@ -946,7 +946,7 @@
 
                     <div>
                       <label className="block text-gray-300 font-bold mb-1">Телефон нөміріңіз *</label>
-                      <input required placeholder="+7 (778) 000-00-00" value={orderForm.phone} onChange={e => setOrderForm({...orderForm, phone: e.target.value})} className="w-full bg-[#1F1410] border border-[#3D291F] rounded-lg p-2 text-white" />
+                      <input required placeholder="+7 (702) 648-08-87" value={orderForm.phone} onChange={e => setOrderForm({...orderForm, phone: e.target.value})} className="w-full bg-[#1F1410] border border-[#3D291F] rounded-lg p-2 text-white" />
                     </div>
 
                     <div>
@@ -974,7 +974,7 @@
                     </div>
 
                     <button type="submit" className="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 rounded-xl uppercase tracking-wider text-xs shadow-lg mt-2">
-                      WhatsApp-қа Тапсырыс Жіберу ➔
+                      WhatsApp-қа Тапсырыс Жіберу (+77026480887) ➔
                     </button>
                   </form>
                 </div>
@@ -1074,7 +1074,7 @@
 
             <footer className="bg-[#160E0B] border-t border-[#3D291F] py-5 px-4 text-center text-xs text-gray-400 mt-auto">
               <p className="font-bold text-[#F3E5AB]">APORT ASHANA — Атырау қаласы</p>
-              <p className="text-[11px] text-gray-400 mt-1">Барлық 5 филиалдың жеке WhatsApp тапсырыс жүйесі © 2026</p>
+              <p className="text-[11px] text-gray-400 mt-1">Тапсырыс қабылдау нөмірі: +7 702 648 0887 © 2026</p>
             </footer>
           </div>
         );
