@@ -59,7 +59,7 @@
     <script type="text/babel">
       const { useState, useEffect, useMemo, useRef } = React;
 
-      // --- ATYRAU 5 REAL BRANCHES DATA (ALL ROUTED TO +77026480887) ---
+      // --- ATYRAU 5 REAL BRANCHES DATA (CORRECTED WHATSAPP CODE 77026480887) ---
       const ATYRAU_BRANCHES = [
         {
           id: 1,
@@ -67,7 +67,7 @@
           address: 'Муса Баймуханова улица, 48/1, 1 этаж, Атырау',
           hours: '08:00 - 23:00',
           coords: [47.1162, 51.9051],
-          whatsapp: '87026480887',
+          whatsapp: '77026480887',
           displayPhone: '+7 (702) 648-08-87',
           pinCode: '4810'
         },
@@ -77,7 +77,7 @@
           address: 'Махамбета Утемисова улица, 114в, Атырау',
           hours: '08:30 - 23:30',
           coords: [47.1085, 51.9168],
-          whatsapp: '87026480887',
+          whatsapp: '77026480887',
           displayPhone: '+7 (702) 648-08-87',
           pinCode: '1140'
         },
@@ -87,7 +87,7 @@
           address: 'микрорайон Сарыарка, 40, Атырау',
           hours: '09:00 - 23:00',
           coords: [47.1420, 51.9210],
-          whatsapp: '87026480887',
+          whatsapp: '77026480887',
           displayPhone: '+7 (702) 648-08-87',
           pinCode: '4040'
         },
@@ -97,7 +97,7 @@
           address: 'микрорайон Авангард-2, 1, 1 этаж, Атырау',
           hours: '08:00 - 24:00',
           coords: [47.0872, 51.8885],
-          whatsapp: '87026480887',
+          whatsapp: '77026480887',
           displayPhone: '+7 (702) 648-08-87',
           pinCode: '2001'
         },
@@ -107,7 +107,7 @@
           address: 'микрорайон Алмагуль, 1, 1 этаж, Атырау',
           hours: '08:00 - 24:00',
           coords: [47.1195, 51.9392],
-          whatsapp: '87026480887',
+          whatsapp: '77026480887',
           displayPhone: '+7 (702) 648-08-87',
           pinCode: '1001'
         }
@@ -418,17 +418,17 @@
       // --- MAIN APP COMPONENT ---
       function App() {
         const [selectedBranch, setSelectedBranch] = useState(() => {
-          const saved = localStorage.getItem('aport_selected_branch_v3');
+          const saved = localStorage.getItem('aport_selected_branch_v4');
           return saved ? JSON.parse(saved) : null;
         });
 
         const [products, setProducts] = useState(() => {
-          const saved = localStorage.getItem('aport_products_v3');
+          const saved = localStorage.getItem('aport_products_v4');
           return saved ? JSON.parse(saved) : INITIAL_PRODUCTS;
         });
 
         const [cart, setCart] = useState(() => {
-          const saved = localStorage.getItem('aport_cart_v3');
+          const saved = localStorage.getItem('aport_cart_v4');
           return saved ? JSON.parse(saved) : [];
         });
 
@@ -455,16 +455,16 @@
 
         useEffect(() => {
           if (selectedBranch) {
-            localStorage.setItem('aport_selected_branch_v3', JSON.stringify(selectedBranch));
+            localStorage.setItem('aport_selected_branch_v4', JSON.stringify(selectedBranch));
           }
         }, [selectedBranch]);
 
         useEffect(() => {
-          localStorage.setItem('aport_cart_v3', JSON.stringify(cart));
+          localStorage.setItem('aport_cart_v4', JSON.stringify(cart));
         }, [cart]);
 
         useEffect(() => {
-          localStorage.setItem('aport_products_v3', JSON.stringify(products));
+          localStorage.setItem('aport_products_v4', JSON.stringify(products));
         }, [products]);
 
         const isProductAvailable = (product) => {
@@ -552,7 +552,7 @@
           const message = `Сәлеметсіз бе! ❤️\nAPORT ASHANA-дан ТАПСЫРЫС!\n\n📍 ТАҢДАЛҒАН ТОЧКА:\n${selectedBranch.name}\n(${selectedBranch.address})\n\n👤 Тапсырыс беруші: ${orderForm.name}\n📞 Телефон: ${orderForm.phone}\n🚚 Түрі: ${orderForm.orderType === 'delivery' ? 'Жеткізу' : 'Өзі алып кету'}\n📍 Мекенжай: ${orderForm.orderType === 'delivery' ? orderForm.address : 'Рестораннан алып кетеді'}\n\n🛒 ТАПСЫРЫС ТІЗІМІ:\n${itemsText}\n\n💰 ЖАЛПЫ СОММА: ${cartTotal}₸\n\n📝 Ескертпе: ${orderForm.comment || 'Жоқ'}\n\nAPORT ASHANA ❤️`;
 
           const targetWhatsAppNumber = selectedBranch.whatsapp;
-          window.open(`https://wa.me/${targetWhatsAppNumber}?text=${encodeURIComponent(message)}`, '_blank');
+          window.open(`https://api.whatsapp.com/send?phone=${targetWhatsAppNumber}&text=${encodeURIComponent(message)}`, '_blank');
           setShowOrderModal(false);
         };
 
