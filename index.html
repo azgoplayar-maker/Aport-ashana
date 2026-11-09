@@ -1,4 +1,3 @@
-```html
 <!DOCTYPE html>
 <html lang="kk">
 <head>
@@ -16,13 +15,10 @@
     <!-- Babel JS Compiler -->
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
     
-    <!-- Leaflet CSS & JS for Real Interactive Atyrau Map -->
+    <!-- Leaflet CSS & JS for Atyrau Interactive Map -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
-    <!-- Lucide Icons -->
-    <script src="https://unpkg.com/lucide@latest"></script>
-    
     <style>
       .custom-scrollbar::-webkit-scrollbar {
         width: 5px;
@@ -41,7 +37,6 @@
         -ms-overflow-style: none;
         scrollbar-width: none;
       }
-      /* Leaflet Dark Theme Overlays */
       .leaflet-container {
         background: #160E0B !important;
         font-family: inherit;
@@ -59,7 +54,15 @@
     <script type="text/babel">
       const { useState, useEffect, useMemo, useRef } = React;
 
-      // --- ATYRAU 5 REAL BRANCHES DATA (CORRECTED WHATSAPP CODE 77026480887) ---
+      // YOUR REAL PHOTOS LINKED DIRECTLY TO YOUR GITHUB REPOSITORY FILES
+      const USER_REAL_PHOTOS = {
+        PLOV: './plov.jpg',
+        BESHBARMAK: './beshbarmak.jpg',
+        LAGMAN: './lagman.jpg',
+        RICE: './rice.jpg'
+      };
+
+      // --- ATYRAU 5 REAL BRANCHES DATA ---
       const ATYRAU_BRANCHES = [
         {
           id: 1,
@@ -113,17 +116,16 @@
         }
       ];
 
-      // --- HIGH QUALITY FOOD PRODUCTS CATALOG ---
+      // MENU ITEMS CATALOG
       const INITIAL_PRODUCTS = [
-        // НЕГІЗГІ ТАҒАМДАР
         {
           id: 'm1',
           category: 'НЕГІЗГІ ТАҒАМДАР',
           name: 'Дәстүрлі Өзбек Пловы',
           price: 1550,
           weight: '350 гр',
-          image: 'https://images.unsplash.com/photo-1633964913295-ceb43826e7c9?auto=format&fit=crop&q=80&w=800',
-          description: 'Нәзік сиыр еті, сары сәбіз, ноқат және сарымсақ қосылған хош иісті плов',
+          image: USER_REAL_PHOTOS.PLOV,
+          description: 'Нәзік ет, сары сәбіз, ноқат және сарымсақ қосылған дәмді өзбек пловы',
           stockStatus: {}
         },
         {
@@ -132,8 +134,8 @@
           name: 'Қуырған Лагман',
           price: 1800,
           weight: '380 гр',
-          image: 'https://images.unsplash.com/photo-1569718212165-3a8278d5f624?auto=format&fit=crop&q=80&w=800',
-          description: 'Қолдан созылған лапша, жас сойылған ет және балғын көкөністермен қуырылған',
+          image: USER_REAL_PHOTOS.LAGMAN,
+          description: 'Қолдан созылған лапша, жас ет және балғын көкөністермен қуырылған',
           stockStatus: {}
         },
         {
@@ -142,8 +144,8 @@
           name: 'Қазақша Бешбармақ',
           price: 2200,
           weight: '450 гр',
-          image: 'https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&q=80&w=800',
-          description: 'Нәзік қазы-қарта, жайма және сорпаға бұқтырылған пияз тұздығы',
+          image: USER_REAL_PHOTOS.BESHBARMAK,
+          description: 'Нәзік қазы-қарта, жұқа жайма және сорпаға бұқтырылған пияз тұздығы',
           stockStatus: {}
         },
         {
@@ -152,178 +154,38 @@
           name: 'Үй Мантысы (Буда)',
           price: 1650,
           weight: '5 дана',
-          image: 'https://images.unsplash.com/photo-1541696432-82c6da8ce7bf?auto=format&fit=crop&q=80&w=800',
+          image: null,
           description: 'Тураған сиыр еті мен пияз қосылған шырынды ыстық манты',
           stockStatus: {}
         },
-        {
-          id: 'm5',
-          category: 'НЕГІЗГІ ТАҒАМДАР',
-          name: 'Атырауша Қуырдақ',
-          price: 2300,
-          weight: '350 гр',
-          image: 'https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&q=80&w=800',
-          description: 'Бұқтырылған жас ет пен картоп, хош иісті дәмдеуіштермен',
-          stockStatus: {}
-        },
-        {
-          id: 'm6',
-          category: 'НЕГІЗГІ ТАҒАМДАР',
-          name: 'Үй Котлеті + Картоп Пюресі',
-          price: 1700,
-          weight: '380 гр',
-          image: 'https://images.unsplash.com/photo-1529042410759-befb1204b468?auto=format&fit=crop&q=80&w=800',
-          description: 'Шырынды сиыр котлеті, сарымайлы майда пюре және соус',
-          stockStatus: {}
-        },
-
-        // ГАРНИРЛЕР
         {
           id: 'g1',
           category: 'ГАРНИРЛЕР',
           name: 'Ақ Бу Күріші',
           price: 350,
           weight: '180 гр',
-          image: 'https://images.unsplash.com/photo-1516684732162-798a0062be99?auto=format&fit=crop&q=80&w=800',
-          description: 'Ұзын дән ақ күріш',
+          image: USER_REAL_PHOTOS.RICE,
+          description: 'Тәрелкедегі дәмді ақ күріш гарнирі',
           stockStatus: {}
         },
-        {
-          id: 'g2',
-          category: 'ГАРНИРЛЕР',
-          name: 'Сарымайлы Гречка',
-          price: 400,
-          weight: '180 гр',
-          image: 'https://images.unsplash.com/photo-1586201375761-83865001e31c?auto=format&fit=crop&q=80&w=800',
-          description: 'Пісірілген қарамық гарнирі',
-          stockStatus: {}
-        },
-        {
-          id: 'g3',
-          category: 'ГАРНИРЛЕР',
-          name: 'Кілегейлі Ризотто Күріш',
-          price: 500,
-          weight: '180 гр',
-          image: 'https://images.unsplash.com/photo-1633964913295-ceb43826e7c9?auto=format&fit=crop&q=80&w=800',
-          description: 'Көкөністер қосылған дәмді күріш',
-          stockStatus: {}
-        },
-
-        // ТАУЫҚ ЕТТЕРІ
         {
           id: 'c1',
           category: 'ТАУЫҚ ЕТТЕРІ',
-          name: 'Таматы Соусындағы Тауық',
+          name: 'Томат Соусындағы Тауық',
           price: 1250,
           weight: '200 гр',
-          image: 'https://images.unsplash.com/photo-1603894584373-5ac82b2ae398?auto=format&fit=crop&q=80&w=800',
-          description: 'Хош иісті қызанақ соусында бұқтырылған жұмсақ тауық филесі',
+          image: null,
+          description: 'Қою томат соусында бұқтырылған жұмсақ тауық еті',
           stockStatus: {}
         },
-        {
-          id: 'c2',
-          category: 'ТАУЫҚ ЕТТЕРІ',
-          name: 'Қышқыл-Тәтті Соустағы Тауық',
-          price: 1300,
-          weight: '200 гр',
-          image: 'https://images.unsplash.com/photo-1525755662778-989d0524087e?auto=format&fit=crop&q=80&w=800',
-          description: 'Азия стиліндегі қышқыл-тәтті соусы бар қытырлақ тауық еті',
-          stockStatus: {}
-        },
-
-        // СОРПАЛАР
-        {
-          id: 's1',
-          category: 'СОРПАЛАР',
-          name: 'Тауық Етімен Үй Кеспесі',
-          price: 1400,
-          weight: '400 мл',
-          image: 'https://images.unsplash.com/photo-1547592166-23ac45744acd?auto=format&fit=crop&q=80&w=800',
-          description: 'Қолдан созылған нәзік кеспе, таза тауық сорпасы мен ет',
-          stockStatus: {}
-        },
-        {
-          id: 's2',
-          category: 'СОРПАЛАР',
-          name: 'Қою Ет Сорпасы',
-          price: 1500,
-          weight: '400 мл',
-          image: 'https://images.unsplash.com/photo-1547592166-23ac45744acd?auto=format&fit=crop&q=80&w=800',
-          description: 'Көкөністер мен сиыр еті қосылған нәрлі ыстық сорпа',
-          stockStatus: {}
-        },
-
-        // САЛАТТАР
-        {
-          id: 'sl1',
-          category: 'САЛАТТАР',
-          name: 'Классикалық Оливье',
-          price: 950,
-          weight: '220 гр',
-          image: 'https://images.unsplash.com/photo-1540420773420-3366772f4999?auto=format&fit=crop&q=80&w=800',
-          description: 'Ет, майонез және картоп қосылған сүйікті Оливье салаты',
-          stockStatus: {}
-        },
-        {
-          id: 'sl2',
-          category: 'САЛАТТАР',
-          name: 'Балғын Көкөніс салаты',
-          price: 850,
-          weight: '200 гр',
-          image: 'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?auto=format&fit=crop&q=80&w=800',
-          description: 'Қияр, қызанақ, аскөк және өсімдік майы',
-          stockStatus: {}
-        },
-
-        // СУСЫНДАР
         {
           id: 'd1',
           category: 'СУСЫНДАР',
           name: 'Үй Жеміс Компоты',
           price: 450,
           weight: '0.5 л',
-          image: 'https://images.unsplash.com/photo-1551024709-8f23befc6f87?auto=format&fit=crop&q=80&w=800',
-          description: 'Өз өндірісіміздегі табиғи өрік пен алма компоты',
-          stockStatus: {}
-        },
-        {
-          id: 'd2',
-          category: 'СУСЫНДАР',
-          name: 'Жидек Морсы',
-          price: 500,
-          weight: '0.5 л',
-          image: 'https://images.unsplash.com/photo-1546171753-97d7676e4602?auto=format&fit=crop&q=80&w=800',
-          description: 'Қарақат пен бүлдіргеннен жасалған сусын',
-          stockStatus: {}
-        },
-        {
-          id: 'd3',
-          category: 'СУСЫНДАР',
-          name: 'Coca-Cola',
-          price: 550,
-          weight: '0.5 л',
-          image: 'https://images.unsplash.com/photo-1622483767028-3f66f32aef97?auto=format&fit=crop&q=80&w=800',
-          description: 'Салқындатылған Coca-Cola бөтелкесі',
-          stockStatus: {}
-        },
-        {
-          id: 'd4',
-          category: 'СУСЫНДАР',
-          name: 'Fanta',
-          price: 550,
-          weight: '0.5 л',
-          image: 'https://images.unsplash.com/photo-1624517452488-04869289c4ca?auto=format&fit=crop&q=80&w=800',
-          description: 'Апельсин дәмі бар салқын сусын',
-          stockStatus: {}
-        },
-        {
-          id: 'd5',
-          category: 'СУСЫНДАР',
-          name: 'Салқын Айран',
-          price: 450,
-          weight: '0.5 л',
-          image: 'https://images.unsplash.com/photo-1528751014936-863e6e7a319c?auto=format&fit=crop&q=80&w=800',
-          description: 'Ұлттық қою ағарған айран',
+          image: null,
+          description: 'Табиғи жеміс компоты',
           stockStatus: {}
         }
       ];
@@ -338,7 +200,6 @@
         'СУСЫНДАР'
       ];
 
-      // --- LEAFLET MAP COMPONENT ---
       function AtyrauMap({ branches, selectedBranch, onSelectBranch }) {
         const mapRef = useRef(null);
         const mapInstanceRef = useRef(null);
@@ -415,20 +276,16 @@
         );
       }
 
-      // --- MAIN APP COMPONENT ---
       function App() {
         const [selectedBranch, setSelectedBranch] = useState(() => {
-          const saved = localStorage.getItem('aport_selected_branch_v4');
+          const saved = localStorage.getItem('aport_selected_branch_v9');
           return saved ? JSON.parse(saved) : null;
         });
 
-        const [products, setProducts] = useState(() => {
-          const saved = localStorage.getItem('aport_products_v4');
-          return saved ? JSON.parse(saved) : INITIAL_PRODUCTS;
-        });
+        const [products, setProducts] = useState(INITIAL_PRODUCTS);
 
         const [cart, setCart] = useState(() => {
-          const saved = localStorage.getItem('aport_cart_v4');
+          const saved = localStorage.getItem('aport_cart_v9');
           return saved ? JSON.parse(saved) : [];
         });
 
@@ -455,17 +312,13 @@
 
         useEffect(() => {
           if (selectedBranch) {
-            localStorage.setItem('aport_selected_branch_v4', JSON.stringify(selectedBranch));
+            localStorage.setItem('aport_selected_branch_v9', JSON.stringify(selectedBranch));
           }
         }, [selectedBranch]);
 
         useEffect(() => {
-          localStorage.setItem('aport_cart_v4', JSON.stringify(cart));
+          localStorage.setItem('aport_cart_v9', JSON.stringify(cart));
         }, [cart]);
-
-        useEffect(() => {
-          localStorage.setItem('aport_products_v4', JSON.stringify(products));
-        }, [products]);
 
         const isProductAvailable = (product) => {
           if (!selectedBranch) return true;
@@ -531,10 +384,6 @@
           }).filter(Boolean));
         };
 
-        const removeFromCart = (cartId) => {
-          setCart(prev => prev.filter(item => item.cartId !== cartId));
-        };
-
         const cartTotal = useMemo(() => cart.reduce((sum, item) => sum + (item.price * item.quantity), 0), [cart]);
         const totalItemCount = useMemo(() => cart.reduce((sum, item) => sum + item.quantity, 0), [cart]);
 
@@ -563,7 +412,7 @@
             setIsAdminAuthorized(true);
             setPinError('');
           } else {
-            setPinError('Қате PIN-код! Қайта тексеріңіз.');
+            setPinError('Қате PIN-код!');
           }
         };
 
@@ -617,7 +466,6 @@
                       setPinInput('');
                     }}
                     className="p-2 text-[#D4AF37] hover:bg-[#3D291F] rounded-lg border border-[#3D291F] text-xs font-bold flex items-center space-x-1"
-                    title="Точканы Басқару"
                   >
                     <span>⚙️ Басқару</span>
                   </button>
@@ -647,7 +495,7 @@
                     ФИЛИАЛДЫ ТАҢДАҢЫЗ
                   </h2>
                   <p className="text-xs sm:text-sm text-gray-300 mt-1">
-                    Тапсырысты орындау үшін мекенжайды таңдаңыз (WhatsApp: +7 702 648 0887)
+                    Тапсырыс беретін Атыраудағы нақты мекенжайды таңдаңыз (+7 702 648 0887)
                   </p>
                 </div>
 
@@ -668,16 +516,13 @@
                       <div>
                         <div className="flex justify-between items-start">
                           <h3 className="font-bold text-sm text-[#F3E5AB] leading-snug">{branch.name}</h3>
-                          <span className="text-[10px] bg-emerald-950 text-emerald-400 border border-emerald-800 px-2 py-0.5 rounded-full font-bold">Жұмыс істеп тұр</span>
+                          <span className="text-[10px] bg-emerald-950 text-emerald-400 border border-emerald-800 px-2 py-0.5 rounded-full font-bold">Ашық</span>
                         </div>
                         <p className="text-xs text-gray-300 mt-2 flex items-start">
                           <span className="mr-1">📍</span> {branch.address}
                         </p>
                         <p className="text-xs text-[#D4AF37] mt-1 font-semibold flex items-center">
                           <span className="mr-1">📱</span> WhatsApp: {branch.displayPhone}
-                        </p>
-                        <p className="text-[11px] text-gray-400 mt-0.5">
-                          ⏰ Уақыты: {branch.hours}
                         </p>
                       </div>
 
@@ -702,7 +547,7 @@
                       ҚОШ КЕЛДІҢІЗ ❤️ МӘЗІР
                     </h2>
                     <p className="text-xs text-gray-300 mt-1">
-                      Тапсырыс қабылдау нөмірі: <strong className="text-[#D4AF37]">{selectedBranch.displayPhone}</strong>
+                      Тапсырыс нөмірі: <strong className="text-[#D4AF37]">{selectedBranch.displayPhone}</strong>
                     </p>
                   </div>
 
@@ -733,7 +578,6 @@
                         <h3 className="text-lg sm:text-xl font-extrabold text-[#F3E5AB] mt-1">
                           ӨЗ КОМБОҢДЫ ЖАСА!
                         </h3>
-                        <p className="text-xs text-gray-300">Кез келген гарнирді тауық етімен біріктіріңіз</p>
                       </div>
 
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -750,10 +594,7 @@
                                     : 'bg-[#2A1B15] border-[#3D291F] text-gray-300'
                                 }`}
                               >
-                                <div className="flex items-center space-x-2">
-                                  <img src={g.image} className="w-8 h-8 rounded object-cover" alt="" />
-                                  <span>{g.name}</span>
-                                </div>
+                                <span>{g.name}</span>
                                 <span className="font-bold text-[#D4AF37]">{g.price}₸</span>
                               </div>
                             ))}
@@ -773,10 +614,7 @@
                                     : 'bg-[#2A1B15] border-[#3D291F] text-gray-300'
                                 }`}
                               >
-                                <div className="flex items-center space-x-2">
-                                  <img src={c.image} className="w-8 h-8 rounded object-cover" alt="" />
-                                  <span>{c.name}</span>
-                                </div>
+                                <span>{c.name}</span>
                                 <span className="font-bold text-[#D4AF37]">{c.price}₸</span>
                               </div>
                             ))}
@@ -785,7 +623,7 @@
                       </div>
 
                       <div className="mt-4 pt-3 border-t border-[#3D291F] flex flex-col sm:flex-row items-center justify-between gap-3">
-                        <span className="text-xs font-bold text-[#F3E5AB] text-center sm:text-left">
+                        <span className="text-xs font-bold text-[#F3E5AB]">
                           {selectedGarnish && selectedChicken 
                             ? `Жиынтық: ${selectedGarnish.name} + ${selectedChicken.name}` 
                             : 'Гарнир мен Тауық етін таңдаңыз'}
@@ -814,35 +652,44 @@
                             }`}
                           >
                             <div>
-                              <div className="relative h-40 w-full overflow-hidden">
-                                <img
-                                  src={product.image}
-                                  alt={product.name}
-                                  className="w-full h-full object-cover"
-                                />
-                                <span className="absolute top-2 right-2 bg-[#1F1410]/90 text-[#F3E5AB] text-[10px] font-bold px-2 py-0.5 rounded-full border border-[#3D291F]">
-                                  {product.weight}
-                                </span>
-                                {!available && (
-                                  <div className="absolute inset-0 bg-black/70 flex items-center justify-center">
-                                    <span className="bg-rose-600 text-white text-xs font-black px-3 py-1 rounded-full uppercase tracking-wider">
-                                      ӘЗІРГЕ ЖОҚ
+                              {product.image && (
+                                <div className="relative h-48 w-full overflow-hidden bg-[#180E0A]">
+                                  <img
+                                    src={product.image}
+                                    alt={product.name}
+                                    className="w-full h-full object-cover"
+                                  />
+                                  <span className="absolute top-2 right-2 bg-[#1F1410]/90 text-[#F3E5AB] text-[10px] font-bold px-2 py-0.5 rounded-full border border-[#3D291F]">
+                                    {product.weight}
+                                  </span>
+                                  {!available && (
+                                    <div className="absolute inset-0 bg-black/70 flex items-center justify-center">
+                                      <span className="bg-rose-600 text-white text-xs font-black px-3 py-1 rounded-full uppercase tracking-wider">
+                                        ӘЗІРГЕ ЖОҚ
+                                      </span>
+                                    </div>
+                                  )}
+                                </div>
+                              )}
+                              <div className="p-4">
+                                <div className="flex justify-between items-start">
+                                  <h3 className="font-bold text-base text-[#F3E5AB]">{product.name}</h3>
+                                  {!product.image && (
+                                    <span className="bg-[#1F1410] text-[#F3E5AB] text-[10px] font-bold px-2 py-0.5 rounded-full border border-[#3D291F] shrink-0 ml-2">
+                                      {product.weight}
                                     </span>
-                                  </div>
-                                )}
-                              </div>
-                              <div className="p-3">
-                                <h3 className="font-bold text-sm text-[#F3E5AB]">{product.name}</h3>
+                                  )}
+                                </div>
                                 <p className="text-xs text-gray-400 mt-1 line-clamp-2">{product.description}</p>
                               </div>
                             </div>
 
-                            <div className="p-3 pt-0 flex items-center justify-between mt-2">
-                              <span className="text-base font-black text-[#D4AF37]">{product.price}₸</span>
+                            <div className="p-4 pt-0 flex items-center justify-between mt-2">
+                              <span className="text-lg font-black text-[#D4AF37]">{product.price}₸</span>
                               {available ? (
                                 <button
                                   onClick={() => addToCart(product)}
-                                  className="bg-[#3D291F] hover:bg-[#D4AF37] hover:text-[#1F1410] text-[#F3E5AB] font-bold px-3 py-1.5 rounded-lg text-xs transition-all border border-[#52382B]"
+                                  className="bg-[#3D291F] hover:bg-[#D4AF37] hover:text-[#1F1410] text-[#F3E5AB] font-bold px-4 py-2 rounded-lg text-xs transition-all border border-[#52382B]"
                                 >
                                   + ҚОСУ
                                 </button>
@@ -896,7 +743,6 @@
                           cart.map(item => (
                             <div key={item.cartId} className="bg-[#241611] p-2.5 rounded-xl border border-[#3A2216] flex justify-between items-center text-xs">
                               <div className="flex items-center space-x-2">
-                                <img src={item.image} className="w-9 h-9 rounded object-cover" alt="" />
                                 <div>
                                   <p className="font-bold text-[#F3E5AB] leading-tight">{item.name}</p>
                                   <p className="text-[#D4AF37] font-extrabold text-[11px]">{item.price * item.quantity}₸</p>
@@ -1026,7 +872,6 @@
                       <button type="submit" className="w-full bg-[#D4AF37] text-[#1F1410] font-bold py-2 rounded-lg text-xs uppercase">
                         Рұқсат алу
                       </button>
-                      <p className="text-[10px] text-gray-500">Әдепкі PIN кодары: 4810, 1140, 4040, 2001, 1001</p>
                     </form>
                   ) : (
                     <div className="mt-5 space-y-4">
@@ -1043,12 +888,9 @@
                             const isAvail = (prod.stockStatus ? prod.stockStatus[adminBranch.id] : undefined) !== false;
                             return (
                               <div key={prod.id} className="flex items-center justify-between bg-[#1F1410] p-2.5 rounded-lg border border-[#3D291F]">
-                                <div className="flex items-center space-x-2">
-                                  <img src={prod.image} className="w-8 h-8 rounded object-cover" alt="" />
-                                  <div>
-                                    <p className="text-xs font-bold text-[#F3E5AB]">{prod.name}</p>
-                                    <p className="text-[10px] text-gray-400">{prod.price}₸</p>
-                                  </div>
+                                <div>
+                                  <p className="text-xs font-bold text-[#F3E5AB]">{prod.name}</p>
+                                  <p className="text-[10px] text-gray-400">{prod.price}₸</p>
                                 </div>
 
                                 <button
