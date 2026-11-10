@@ -54,8 +54,9 @@
     <script type="text/babel">
       const { useState, useEffect, useMemo, useRef } = React;
 
-      // YOUR REAL PHOTOS LINKED DIRECTLY TO YOUR GITHUB REPOSITORY FILES
+      // REAL PHOTOS & LOGO LINKED DIRECTLY TO YOUR GITHUB REPOSITORY FILES
       const USER_REAL_PHOTOS = {
+        LOGO: './logo.jpg',
         PLOV: './plov.jpg',
         BESHBARMAK: './beshbarmak.jpg',
         LAGMAN: './lagman.jpg',
@@ -438,13 +439,37 @@
           <div className="min-h-screen flex flex-col font-sans">
             <header className="sticky top-0 z-40 bg-[#2A1B15]/95 backdrop-blur-md border-b border-[#3D291F] px-4 py-3 shadow-lg">
               <div className="max-w-7xl mx-auto flex items-center justify-between">
-                <div className="flex items-center space-x-3 cursor-pointer" onClick={() => setSelectedBranch(null)}>
-                  <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-[#D4AF37] to-[#F3E5AB] flex items-center justify-center text-[#1F1410] font-black text-xl border border-[#F3E5AB] shadow">
-                    A
-                  </div>
-                  <div>
-                    <h1 className="font-bold text-lg leading-none text-[#F3E5AB]">APORT ASHANA</h1>
-                    <p className="text-[10px] text-[#D4AF37] uppercase font-semibold mt-0.5">Атырау Желісі ❤️</p>
+                
+                {/* LOGO & BRAND AVATAR WITH BACK ARROW BUTTON */}
+                <div className="flex items-center space-x-2">
+                  {selectedBranch && (
+                    <button 
+                      onClick={() => setSelectedBranch(null)} 
+                      className="p-2 text-[#D4AF37] hover:bg-[#3D291F] rounded-full transition-all border border-[#3D291F] flex items-center justify-center mr-1"
+                      title="Кері қайту"
+                    >
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+                      </svg>
+                    </button>
+                  )}
+
+                  <div className="flex items-center space-x-3 cursor-pointer" onClick={() => setSelectedBranch(null)}>
+                    <div className="w-11 h-11 rounded-full bg-[#FFFFFF] overflow-hidden flex items-center justify-center border-2 border-[#D4AF37] shadow-md shrink-0">
+                      <img 
+                        src={USER_REAL_PHOTOS.LOGO} 
+                        alt="APORT ASHANA" 
+                        className="w-full h-full object-cover"
+                        onError={(e) => {
+                          e.target.onerror = null; 
+                          e.target.parentElement.innerHTML = '<span style="color:#1F1410;font-weight:900;font-size:18px;">A</span>';
+                        }}
+                      />
+                    </div>
+                    <div>
+                      <h1 className="font-extrabold text-lg leading-none text-[#F3E5AB] tracking-wide">APORT ASHANA</h1>
+                      <p className="text-[10px] text-[#D4AF37] uppercase font-bold mt-0.5 tracking-wider">Атырау Желісі ❤️</p>
+                    </div>
                   </div>
                 </div>
 
