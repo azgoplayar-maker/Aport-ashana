@@ -1,828 +1,505 @@
 <!DOCTYPE html>
 <html lang="kk">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>APORT ASHANA — Атырау | Жедел Тамақ Жеткізу ❤️</title>
-​<!-- Tailwind CSS -->
-<script src="https://cdn.tailwindcss.com"></script>
-​<!-- React & ReactDOM -->
-<script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
-<script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
-​<!-- Babel JS Compiler -->
-<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-​<!-- Leaflet CSS & JS for Atyrau Interactive Map -->
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-​<style>
-.custom-scrollbar::-webkit-scrollbar {
-width: 5px;
-}
-.custom-scrollbar::-webkit-scrollbar-track {
-background: #180E0A;
-}
-.custom-scrollbar::-webkit-scrollbar-thumb {
-background: #D4AF37;
-border-radius: 4px;
-}
-.no-scrollbar::-webkit-scrollbar {
-display: none;
-}
-.no-scrollbar {
--ms-overflow-style: none;
-scrollbar-width: none;
-}
-.leaflet-container {
-background: #160E0B !important;
-font-family: inherit;
-}
-.leaflet-popup-content-wrapper, .leaflet-popup-tip {
-background: #2A1B15 !important;
-color: #F3E5AB !important;
-border: 1px solid #D4AF37 !important;
-}
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#1b100c">
+  <title>APORT ASHANA — Атырау | Онлайн тапсырыс</title>
+  <meta name="description" content="APORT ASHANA — Атыраудағы 5 филиалдан тағамға онлайн тапсырыс беру.">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+        integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
+  <style>
+    :root { color-scheme: dark; --gold:#d7b45a; --cream:#f5e8bd; --ink:#1b100c; --panel:#2a1a13; }
+    * { box-sizing:border-box; }
+    body { background:var(--ink); color:#fffaf0; font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif; }
+    .gold-text { color:var(--gold); }
+    .gold-button { background:linear-gradient(110deg,#e4c66e,#b88b32); color:#21140e; }
+    .gold-button:hover { filter:brightness(1.08); transform:translateY(-1px); }
+    .panel { background:linear-gradient(145deg,#302017,#21140f); border:1px solid #59402c; }
+    .soft-border { border-color:#493326; }
+    .leaflet-container { background:#160e0b; font:inherit; }
+    .leaflet-popup-content-wrapper,.leaflet-popup-tip { background:#2a1b15; color:#f3e5ab; border:1px solid #d4af37; }
+    .leaflet-popup-content { margin:12px 14px; }
+    .no-scrollbar::-webkit-scrollbar { display:none; }
+    .no-scrollbar { scrollbar-width:none; }
+    .custom-scrollbar::-webkit-scrollbar { width:5px; }
+    .custom-scrollbar::-webkit-scrollbar-thumb { background:#b88b32; border-radius:8px; }
+    .focus-ring:focus-visible { outline:2px solid var(--gold); outline-offset:3px; }
+    .product-image { background:radial-gradient(circle at 50% 35%,#61432a,#21140f 72%); }
+    .modal-backdrop { background:rgba(0,0,0,.78); }
+    @media (prefers-reduced-motion:no-preference) {
+      .smooth { transition:all .18s ease; }
+    }
+  </style>
 </head>
-<body class="bg-[#1F1410] text-[#FDF8F5] antialiased selection:bg-[#D4AF37] selection:text-[#1F1410]">
-<div id="root"></div>
-​<script type="text/babel">
-const { useState, useEffect, useMemo, useRef } = React;
-​// REAL PHOTOS & LOGO LINKED DIRECTLY TO YOUR GITHUB REPOSITORY FILES
-const USER_REAL_PHOTOS = {
-LOGO: './logo.jpg',
-PLOV: './plov.jpg',
-BESHBARMAK: './beshbarmak.jpg',
-LAGMAN: './lagman.jpg',
-RICE: './rice.jpg'
-};
-​// --- ATYRAU 5 REAL BRANCHES DATA WITH EXACT USER COORDINATES ---
-const ATYRAU_BRANCHES = [
-{
-id: 1,
-name: 'APORT ASHANA — Привокзальный (Баймұханов)',
-address: 'Муса Баймуханова улица, Атырау',
-hours: '08:00 - 23:00',
-coords: [47.130154, 51.941225],
-whatsapp: '77026480887',
-displayPhone: '+7 (702) 648-08-87',
-pinCode: '4810'
-},
-{
-id: 2,
-name: 'APORT ASHANA — Сарыарқа мөлтек ауданы',
-address: 'микрорайон Сарыарка, Атырау',
-hours: '09:00 - 23:00',
-coords: [47.108339, 51.909148],
-whatsapp: '77026480887',
-displayPhone: '+7 (702) 648-08-87',
-pinCode: '4040'
-},
-{
-id: 3,
-name: 'APORT ASHANA — Махамбет Өтемісов көшесі',
-address: 'Махамбета Утемисова улица, Атырау',
-hours: '08:30 - 23:30',
-coords: [47.105747, 51.929124],
-whatsapp: '77026480887',
-displayPhone: '+7 (702) 648-08-87',
-pinCode: '1140'
-},
-{
-id: 4,
-name: 'APORT ASHANA — Авангард',
-address: 'микрорайон Авангард, Атырау',
-hours: '08:00 - 24:00',
-coords: [47.096409, 51.874256],
-whatsapp: '77026480887',
-displayPhone: '+7 (702) 648-08-87',
-pinCode: '2001'
-},
-{
-id: 5,
-name: 'APORT ASHANA — Алмагүл мөлтек ауданы',
-address: 'микрорайон Алмагуль, Атырау',
-hours: '08:00 - 24:00',
-coords: [47.118693, 51.939990],
-whatsapp: '77026480887',
-displayPhone: '+7 (702) 648-08-87',
-pinCode: '1001'
-}
-];
-​// MENU ITEMS CATALOG
-const INITIAL_PRODUCTS = [
-{
-id: 'm1',
-category: 'НЕГІЗГІ ТАҒАМДАР',
-name: 'Дәстүрлі Өзбек Пловы',
-price: 1550,
-weight: '350 гр',
-image: USER_REAL_PHOTOS.PLOV,
-description: 'Нәзік ет, сары сәбіз, ноқат және сарымсақ қосылған дәмді өзбек пловы',
-stockStatus: {}
-},
-{
-id: 'm2',
-category: 'НЕГІЗГІ ТАҒАМДАР',
-name: 'Қуырған Лагман',
-price: 1800,
-weight: '380 гр',
-image: USER_REAL_PHOTOS.LAGMAN,
-description: 'Қолдан созылған лапша, жас ет және балғын көкөністермен қуырылған',
-stockStatus: {}
-},
-{
-id: 'm3',
-category: 'НЕГІЗГІ ТАҒАМДАР',
-name: 'Қазақша Бешбармақ',
-price: 2200,
-weight: '450 гр',
-image: USER_REAL_PHOTOS.BESHBARMAK,
-description: 'Нәзік қазы-қарта, жұқа жайма және сорпаға бұқтырылған пияз тұздығы',
-stockStatus: {}
-},
-{
-id: 'm4',
-category: 'НЕГІЗГІ ТАҒАМДАР',
-name: 'Үй Мантысы (Буда)',
-price: 1650,
-weight: '5 дана',
-image: null,
-description: 'Тураған сиыр еті мен пияз қосылған шырынды ыстық манты',
-stockStatus: {}
-},
-{
-id: 'g1',
-category: 'ГАРНИРЛЕР',
-name: 'Ақ Бу Күріші',
-price: 350,
-weight: '180 гр',
-image: USER_REAL_PHOTOS.RICE,
-description: 'Тәрелкедегі дәмді ақ күріш гарнирі',
-stockStatus: {}
-},
-{
-id: 'c1',
-category: 'ТАУЫҚ ЕТТЕРІ',
-name: 'Томат Соусындағы Тауық',
-price: 1250,
-weight: '200 гр',
-image: null,
-description: 'Қою томат соусында бұқтырылған жұмсақ тауық еті',
-stockStatus: {}
-},
-{
-id: 'd1',
-category: 'СУСЫНДАР',
-name: 'Үй Жеміс Компоты',
-price: 450,
-weight: '0.5 л',
-image: null,
-description: 'Табиғи жеміс компоты',
-stockStatus: {}
-}
-];
-​const CATEGORIES = [
-'НЕГІЗГІ ТАҒАМДАР',
-'КОМБО ТАҒАМДАР',
-'ГАРНИРЛЕР',
-'ТАУЫҚ ЕТТЕРІ',
-'САЛАТТАР',
-'СОРПАЛАР',
-'СУСЫНДАР'
-];
-​function AtyrauMap({ branches, selectedBranch, onSelectBranch }) {
-const mapRef = useRef(null);
-const mapInstanceRef = useRef(null);
-​useEffect(() => {
-if (!mapRef.current) return;
-​if (!mapInstanceRef.current) {
-const map = L.map(mapRef.current, {
-center: [47.112, 51.915],
-zoom: 12,
-zoomControl: true
-});
-​L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-attribution: '© OpenStreetMap contributors'
-}).addTo(map);
-​mapInstanceRef.current = map;
-}
-​const map = mapInstanceRef.current;
-​branches.forEach((b) => {
-const isSelected = selectedBranch && selectedBranch.id === b.id;
-​const customIcon = L.divIcon({
-className: 'custom-map-pin',
-html: <div style=" background: ${isSelected ? '#F3E5AB' : '#D4AF37'};  color: #1F1410;  width: 32px;  height: 32px;  border-radius: 50%;  display: flex;  align-items: center;  justify-content: center;  font-weight: bold;  font-size: 14px; box-shadow: 0 4px 10px rgba(0,0,0,0.5); border: 2px solid #1F1410; ">📍</div>,
-iconSize: [32, 32],
-iconAnchor: [16, 32]
-});
-​const marker = L.marker(b.coords, { icon: customIcon }).addTo(map);
-​marker.bindPopup(<div style="font-size: 12px; line-height: 1.4;"> <b style="color: #F3E5AB;">${b.name}</b><br/> <span>${b.address}</span><br/> <small style="color: #D4AF37;">WhatsApp: ${b.displayPhone}</small> </div>);
-​marker.on('click', () => {
-onSelectBranch(b);
-});
-});
-​if (selectedBranch) {
-map.flyTo(selectedBranch.coords, 14);
-}
-}, [branches, selectedBranch]);
-​return (
-<div className="relative w-full h-[320px] sm:h-[400px] rounded-2xl overflow-hidden border-2 border-[#3D291F] shadow-2xl">
-<div ref={mapRef} className="w-full h-full" />
-<div className="absolute top-3 right-3 z-[1000] bg-[#1F1410]/90 backdrop-blur border border-[#3D291F] px-3 py-1.5 rounded-lg text-[11px] text-[#F3E5AB]">
-📍 Атырау қаласы (5 Точка)
-</div>
-</div>
-);
-}
-​function App() {
-const [selectedBranch, setSelectedBranch] = useState(() => {
-const saved = localStorage.getItem('aport_selected_branch_v10');
-return saved ? JSON.parse(saved) : null;
-});
-​const [products, setProducts] = useState(INITIAL_PRODUCTS);
-​const [cart, setCart] = useState(() => {
-const saved = localStorage.getItem('aport_cart_v10');
-return saved ? JSON.parse(saved) : [];
-});
-​const [activeCategory, setActiveCategory] = useState('НЕГІЗГІ ТАҒАМДАР');
-const [isTrayOpen, setIsTrayOpen] = useState(false);
-const [showOrderModal, setShowOrderModal] = useState(false);
-​const [showAdminModal, setShowAdminModal] = useState(false);
-const [adminBranch, setAdminBranch] = useState(null);
-const [pinInput, setPinInput] = useState('');
-const [isAdminAuthorized, setIsAdminAuthorized] = useState(false);
-const [pinError, setPinError] = useState('');
-​const [selectedGarnish, setSelectedGarnish] = useState(null);
-const [selectedChicken, setSelectedChicken] = useState(null);
-​const [orderForm, setOrderForm] = useState({
-name: '',
-phone: '',
-address: '',
-orderType: 'delivery',
-comment: ''
-});
-​useEffect(() => {
-if (selectedBranch) {
-localStorage.setItem('aport_selected_branch_v10', JSON.stringify(selectedBranch));
-}
-}, [selectedBranch]);
-​useEffect(() => {
-localStorage.setItem('aport_cart_v10', JSON.stringify(cart));
-}, [cart]);
-​const isProductAvailable = (product) => {
-if (!selectedBranch) return true;
-const status = product.stockStatus ? product.stockStatus[selectedBranch.id] : undefined;
-return status !== false;
-};
-​const garnishes = useMemo(() => products.filter(p => p.category === 'ГАРНИРЛЕР' && isProductAvailable(p)), [products, selectedBranch]);
-const chickens = useMemo(() => products.filter(p => p.category === 'ТАУЫҚ ЕТТЕРІ' && isProductAvailable(p)), [products, selectedBranch]);
-​const addToCart = (product) => {
-if (!isProductAvailable(product)) return;
-setCart(prev => {
-const existing = prev.find(item => item.cartId === product.id);
-if (existing) {
-return prev.map(item => item.cartId === product.id ? { ...item, quantity: item.quantity + 1 } : item);
-}
-return [...prev, {
-cartId: product.id,
-isCombo: false,
-name: product.name,
-price: product.price,
-image: product.image,
-weight: product.weight,
-quantity: 1
-}];
-});
-};
-​const addComboToCart = () => {
-if (!selectedGarnish || !selectedChicken) return;
-const comboId = combo-${selectedGarnish.id}-${selectedChicken.id};
-const comboPrice = selectedGarnish.price + selectedChicken.price;
-const comboName = ${selectedGarnish.name} + ${selectedChicken.name};
-​setCart(prev => {
-const existing = prev.find(item => item.cartId === comboId);
-if (existing) {
-return prev.map(item => item.cartId === comboId ? { ...item, quantity: item.quantity + 1 } : item);
-}
-return [...prev, {
-cartId: comboId,
-isCombo: true,
-name: comboName,
-garnishName: selectedGarnish.name,
-garnishPrice: selectedGarnish.price,
-chickenName: selectedChicken.name,
-chickenPrice: selectedChicken.price,
-price: comboPrice,
-image: selectedChicken.image,
-quantity: 1
-}];
-});
-};
-​const updateQuantity = (cartId, delta) => {
-setCart(prev => prev.map(item => {
-if (item.cartId === cartId) {
-const newQty = item.quantity + delta;
-return newQty > 0 ? { ...item, quantity: newQty } : null;
-}
-return item;
-}).filter(Boolean));
-};
-​const cartTotal = useMemo(() => cart.reduce((sum, item) => sum + (item.price * item.quantity), 0), [cart]);
-const totalItemCount = useMemo(() => cart.reduce((sum, item) => sum + item.quantity, 0), [cart]);
-​const handleSendWhatsAppOrder = (e) => {
-e.preventDefault();
-if (cart.length === 0 || !selectedBranch) return;
-​let itemsText = cart.map((item, index) => {
-if (item.isCombo) {
-return ${index + 1}. ${item.name} (${item.quantity}x):\n   - ${item.garnishName} — ${item.garnishPrice}₸\n   - ${item.chickenName} — ${item.chickenPrice}₸\n   - Сомасы: ${item.price * item.quantity}₸;
-}
-return ${index + 1}. ${item.name} × ${item.quantity} — ${item.price * item.quantity}₸;
-}).join('\n\n');
-​const message = Сәлеметсіз бе! ❤️\nAPORT ASHANA-дан ТАПСЫРЫС!\n\n📍 ТАҢДАЛҒАН ТОЧКА:\n${selectedBranch.name}\n(${selectedBranch.address})\n\n👤 Тапсырыс беруші: ${orderForm.name}\n📞 Телефон: ${orderForm.phone}\n🚚 Түрі: ${orderForm.orderType === 'delivery' ? 'Жеткізу' : 'Өзі алып кету'}\n📍 Мекенжай: ${orderForm.orderType === 'delivery' ? orderForm.address : 'Рестораннан алып кетеді'}\n\n🛒 ТАПСЫРЫС ТІЗІМІ:\n${itemsText}\n\n💰 ЖАЛПЫ СОММА: ${cartTotal}₸\n\n📝 Ескертпе: ${orderForm.comment || 'Жоқ'}\n\nAPORT ASHANA ❤️;
-​const targetWhatsAppNumber = selectedBranch.whatsapp;
-window.open(https://api.whatsapp.com/send?phone=${targetWhatsAppNumber}&text=${encodeURIComponent(message)}, '_blank');
-setShowOrderModal(false);
-};
-​const handleAdminLogin = (e) => {
-e.preventDefault();
-if (!adminBranch) return;
-if (pinInput === adminBranch.pinCode || pinInput === '0000') {
-setIsAdminAuthorized(true);
-setPinError('');
-} else {
-setPinError('Қате PIN-код!');
-}
-};
-​const toggleProductStock = (productId) => {
-if (!adminBranch) return;
-setProducts(prev => prev.map(p => {
-if (p.id === productId) {
-const currentStock = p.stockStatus || {};
-const currentStatus = currentStock[adminBranch.id] !== false;
-return {
-...p,
-stockStatus: {
-...currentStock,
-[adminBranch.id]: !currentStatus
-}
-};
-}
-return p;
-}));
-};
-​return (
-<div className="min-h-screen flex flex-col font-sans">
-<header className="sticky top-0 z-40 bg-[#2A1B15]/95 backdrop-blur-md border-b border-[#3D291F] px-4 py-3 shadow-lg">
-<div className="max-w-7xl mx-auto flex items-center justify-between">
-​{/* LOGO & BRAND AVATAR WITH BACK ARROW BUTTON */}
-<div className="flex items-center space-x-2">
-{selectedBranch && (
-<button
-onClick={() => setSelectedBranch(null)}
-className="p-2 text-[#D4AF37] hover:bg-[#3D291F] rounded-full transition-all border border-[#3D291F] flex items-center justify-center mr-1"
-title="Кері қайту"
->
-<svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-<path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
-</svg>
-</button>
-)}
-​<div className="flex items-center space-x-3 cursor-pointer" onClick={() => setSelectedBranch(null)}>
-<div className="w-11 h-11 rounded-full bg-[#FFFFFF] overflow-hidden flex items-center justify-center border-2 border-[#D4AF37] shadow-md shrink-0">
-<img
-src={USER_REAL_PHOTOS.LOGO}
-alt="APORT ASHANA"
-className="w-full h-full object-cover"
-onError={(e) => {
-e.target.onerror = null;
-e.target.parentElement.innerHTML = '<span style="color:#1F1410;font-weight:900;font-size:18px;">A</span>';
-}}
-/>
-</div>
-<div>
-<h1 className="font-extrabold text-lg leading-none text-[#F3E5AB] tracking-wide">APORT ASHANA</h1>
-<p className="text-[10px] text-[#D4AF37] uppercase font-bold mt-0.5 tracking-wider">Атырау Желісі ❤️</p>
-</div>
-</div>
-</div>
-​{selectedBranch && (
-<div className="hidden md:flex items-center bg-[#1F1410] px-3 py-1.5 rounded-full border border-[#3D291F] text-xs">
-<span className="text-gray-300 truncate max-w-[260px]">📍 {selectedBranch.name}</span>
-<button onClick={() => setSelectedBranch(null)} className="ml-2 text-[#D4AF37] hover:underline font-bold text-[11px]">
-Ауыстыру
-</button>
-</div>
-)}
-​<div className="flex items-center space-x-2">
-<button
-onClick={() => {
-setAdminBranch(selectedBranch || ATYRAU_BRANCHES[0]);
-setShowAdminModal(true);
-setIsAdminAuthorized(false);
-setPinInput('');
-}}
-className="p-2 text-[#D4AF37] hover:bg-[#3D291F] rounded-lg border border-[#3D291F] text-xs font-bold flex items-center space-x-1"
->
-<span>⚙️ Басқару</span>
-</button>
-​<button
-onClick={() => setIsTrayOpen(true)}
-className="lg:hidden relative bg-gradient-to-r from-[#D4AF37] to-[#B8860B] text-[#1F1410] font-bold px-3 py-1.5 rounded-full text-xs shadow flex items-center space-x-1"
->
-<span>Поднос</span>
-{totalItemCount > 0 && (
-<span className="bg-[#1F1410] text-[#F3E5AB] text-[10px] px-1.5 py-0.5 rounded-full">
-{totalItemCount}
-</span>
-)}
-</button>
-</div>
-</div>
-</header>
-​{!selectedBranch ? (
-<main className="flex-1 max-w-7xl mx-auto p-4 sm:p-6 w-full">
-<div className="text-center max-w-2xl mx-auto my-4">
-<span className="text-[#D4AF37] text-xs font-bold uppercase tracking-widest bg-[#3D291F] px-3 py-1 rounded-full border border-[#52382B]">
-Атырау Қаласы • 5 Точка
-</span>
-<h2 className="text-2xl sm:text-3xl font-black text-[#F3E5AB] mt-2">
-ФИЛИАЛДЫ ТАҢДАҢЫЗ
-</h2>
-<p className="text-xs sm:text-sm text-gray-300 mt-1">
-Тапсырыс беретін Атыраудағы нақты мекенжайды таңдаңыз (+7 702 648 0887)
-</p>
-</div>
-​<div className="mb-6">
-<AtyrauMap
-branches={ATYRAU_BRANCHES}
-selectedBranch={selectedBranch}
-onSelectBranch={(b) => setSelectedBranch(b)}
-/>
-</div>
-​<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-{ATYRAU_BRANCHES.map(branch => (
-<div 
-key={branch.id} 
-className="bg-[#2A1B15] border border-[#3D291F] hover:border-[#D4AF37] rounded-xl p-4 flex flex-col justify-between transition-all shadow-md"
->
-<div>
-<div className="flex justify-between items-start">
-<h3 className="font-bold text-sm text-[#F3E5AB] leading-snug">{branch.name}</h3>
-<span className="text-[10px] bg-emerald-950 text-emerald-400 border border-emerald-800 px-2 py-0.5 rounded-full font-bold">Ашық</span>
-</div>
-<p className="text-xs text-gray-300 mt-2 flex items-start">
-<span className="mr-1">📍</span> {branch.address}
-</p>
-<p className="text-xs text-[#D4AF37] mt-1 font-semibold flex items-center">
-<span className="mr-1">📱</span> WhatsApp: {branch.displayPhone}
-</p>
-</div>
-​<button
-onClick={() => setSelectedBranch(branch)}
-className="mt-4 w-full bg-gradient-to-r from-[#D4AF37] to-[#B8860B] hover:from-[#F3E5AB] text-[#1F1410] font-bold py-2.5 rounded-lg text-xs uppercase tracking-wider transition-all shadow"
->
-Осы филиалды таңдау ➔
-</button>
-</div>
-))}
-</div>
-</main>
-) : (
-<main className="flex-1 max-w-7xl mx-auto p-4 sm:p-6 lg:flex lg:gap-6 w-full">
-<div className="flex-1 min-w-0">
-<div className="bg-gradient-to-r from-[#2A1B15] via-[#3D291F] to-[#2A1B15] border border-[#3D291F] rounded-2xl p-5 mb-5 text-center shadow-lg">
-<span className="text-[#D4AF37] text-xs font-bold uppercase tracking-widest block mb-0.5">
-Атырау • {selectedBranch.name}
-</span>
-<h2 className="text-xl sm:text-2xl font-black text-[#F3E5AB]">
-ҚОШ КЕЛДІҢІЗ ❤️ МӘЗІР
-</h2>
-<p className="text-xs text-gray-300 mt-1">
-Тапсырыс нөмірі: <strong className="text-[#D4AF37]">{selectedBranch.displayPhone}</strong>
-</p>
-</div>
-​<div className="sticky top-[61px] z-30 bg-[#1F1410]/95 backdrop-blur-md py-2.5 mb-5 overflow-x-auto no-scrollbar border-b border-[#3D291F]">
-<div className="flex space-x-2 min-w-max">
-{CATEGORIES.map(cat => (
-<button
-key={cat}
-onClick={() => setActiveCategory(cat)}
-className={px-4 py-2 rounded-full text-xs font-bold transition-all ${ activeCategory === cat  ? 'bg-[#D4AF37] text-[#1F1410] shadow-md scale-105'  : 'bg-[#2A1B15] text-gray-300 hover:text-[#F3E5AB] border border-[#3D291F]' }}
->
-{cat}
-</button>
-))}
-</div>
-</div>
-​{activeCategory === 'КОМБО ТАҒАМДАР' && (
-<div className="bg-[#2A1B15] border-2 border-[#D4AF37]/40 rounded-2xl p-4 sm:p-5 mb-6 shadow-xl">
-<div className="text-center mb-4">
-<span className="bg-[#D4AF37]/20 text-[#D4AF37] text-[10px] font-bold px-2.5 py-0.5 rounded-full border border-[#D4AF37]/30 uppercase">
-Интерактивті Комбо
-</span>
-<h3 className="text-lg sm:text-xl font-extrabold text-[#F3E5AB] mt-1">
-ӨЗ КОМБОҢДЫ ЖАСА!
-</h3>
-</div>
-​<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-<div className="bg-[#1F1410] p-3 rounded-xl border border-[#3D291F]">
-<p className="text-xs font-bold text-[#D4AF37] mb-2 uppercase">1. Гарнир таңдаңыз:</p>
-<div className="space-y-1.5">
-{garnishes.map(g => (
-<div
-key={g.id}
-onClick={() => setSelectedGarnish(g)}
-className={p-2 rounded-lg text-xs flex justify-between items-center cursor-pointer border transition-all ${ selectedGarnish?.id === g.id  ? 'bg-[#3D291F] border-[#D4AF37] text-[#F3E5AB]'  : 'bg-[#2A1B15] border-[#3D291F] text-gray-300' }}
->
-<span>{g.name}</span>
-<span className="font-bold text-[#D4AF37]">{g.price}₸</span>
-</div>
-))}
-</div>
-</div>
-​<div className="bg-[#1F1410] p-3 rounded-xl border border-[#3D291F]">
-<p className="text-xs font-bold text-[#D4AF37] mb-2 uppercase">2. Тауық етін таңдаңыз:</p>
-<div className="space-y-1.5">
-{chickens.map(c => (
-<div
-key={c.id}
-onClick={() => setSelectedChicken(c)}
-className={p-2 rounded-lg text-xs flex justify-between items-center cursor-pointer border transition-all ${ selectedChicken?.id === c.id  ? 'bg-[#3D291F] border-[#D4AF37] text-[#F3E5AB]'  : 'bg-[#2A1B15] border-[#3D291F] text-gray-300' }}
->
-<span>{c.name}</span>
-<span className="font-bold text-[#D4AF37]">{c.price}₸</span>
-</div>
-))}
-</div>
-</div>
-</div>
-​<div className="mt-4 pt-3 border-t border-[#3D291F] flex flex-col sm:flex-row items-center justify-between gap-3">
-<span className="text-xs font-bold text-[#F3E5AB]">
-{selectedGarnish && selectedChicken
-? Жиынтық: ${selectedGarnish.name} + ${selectedChicken.name}
-: 'Гарнир мен Тауық етін таңдаңыз'}
-</span>
-<button
-disabled={!selectedGarnish || !selectedChicken}
-onClick={addComboToCart}
-className="w-full sm:w-auto bg-[#D4AF37] hover:bg-[#F3E5AB] text-[#1F1410] font-bold px-4 py-2 rounded-lg text-xs uppercase disabled:opacity-40"
->
-Подносқа қосу ({selectedGarnish && selectedChicken ? selectedGarnish.price + selectedChicken.price : 0}₸)
-</button>
-</div>
-</div>
-)}
-​<div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
-{products
-.filter(p => p.category === activeCategory)
-.map(product => {
-const available = isProductAvailable(product);
-return (
-<div
-key={product.id}
-className={bg-[#2A1B15] border rounded-xl overflow-hidden flex flex-col justify-between transition-all ${ available ? 'border-[#3D291F] hover:border-[#D4AF37]/60' : 'border-rose-900/50 opacity-60' }}
->
-<div>
-{product.image && (
-<div className="relative h-48 w-full overflow-hidden bg-[#180E0A]">
-<img
-src={product.image}
-alt={product.name}
-className="w-full h-full object-cover"
-/>
-<span className="absolute top-2 right-2 bg-[#1F1410]/90 text-[#F3E5AB] text-[10px] font-bold px-2 py-0.5 rounded-full border border-[#3D291F]">
-{product.weight}
-</span>
-{!available && (
-<div className="absolute inset-0 bg-black/70 flex items-center justify-center">
-<span className="bg-rose-600 text-white text-xs font-black px-3 py-1 rounded-full uppercase tracking-wider">
-ӘЗІРГЕ ЖОҚ
-</span>
-</div>
-)}
-</div>
-)}
-<div className="p-4">
-<div className="flex justify-between items-start">
-<h3 className="font-bold text-base text-[#F3E5AB]">{product.name}</h3>
-{!product.image && (
-<span className="bg-[#1F1410] text-[#F3E5AB] text-[10px] font-bold px-2 py-0.5 rounded-full border border-[#3D291F] shrink-0 ml-2">
-{product.weight}
-</span>
-)}
-</div>
-<p className="text-xs text-gray-400 mt-1 line-clamp-2">{product.description}</p>
-</div>
-</div>
-​<div className="p-4 pt-0 flex items-center justify-between mt-2">
-<span className="text-lg font-black text-[#D4AF37]">{product.price}₸</span>
-{available ? (
-<button
-onClick={() => addToCart(product)}
-className="bg-[#3D291F] hover:bg-[#D4AF37] hover:text-[#1F1410] text-[#F3E5AB] font-bold px-4 py-2 rounded-lg text-xs transition-all border border-[#52382B]"
->
-+ ҚОСУ
-</button>
-) : (
-<span className="text-[11px] text-rose-400 font-bold">Таусылды</span>
-)}
-</div>
-</div>
-);
-})}
-</div>
-</div>
-​<aside className={fixed lg:sticky top-0 lg:top-[77px] right-0 z-50 lg:z-10 h-full lg:h-[calc(100vh-95px)] w-full sm:w-[360px] lg:w-[360px] bg-transparent transition-transform duration-300 ${isTrayOpen ? 'translate-x-0' : 'translate-x-full lg:translate-x-0'} p-4 lg:p-0}>
-{isTrayOpen && (
-<div onClick={() => setIsTrayOpen(false)} className="fixed inset-0 bg-black/60 lg:hidden -z-10" />
-)}
-​<div className="w-full h-full bg-[#180E0A] border-4 border-[#3A2216] rounded-3xl p-4 shadow-2xl flex flex-col justify-between">
-<div>
-<div className="flex items-center justify-between pb-3 border-b border-[#3A2216]">
-<h3 className="font-extrabold text-sm text-[#F3E5AB] tracking-wide">
-ҚОҢЫР ПОДНОС
-</h3>
-<div className="flex items-center space-x-2">
-<span className="text-[11px] bg-[#2A1B15] text-[#D4AF37] px-2 py-0.5 rounded-full border border-[#3A2216] font-bold">
-{totalItemCount} тағам
-</span>
-<button onClick={() => setIsTrayOpen(false)} className="lg:hidden text-gray-400">✕</button>
-</div>
-</div>
-​<div className="mt-3 bg-[#231510] p-2 rounded-xl border border-[#3A2216] text-[11px] flex justify-between items-center">
-<span className="text-gray-300 truncate max-w-[210px]">📍 {selectedBranch.name}</span>
-<button onClick={() => setSelectedBranch(null)} className="text-[#D4AF37] font-bold hover:underline">Өзгерт</button>
-</div>
-​<div className="mt-3 space-y-2.5 max-h-[calc(100vh-340px)] overflow-y-auto pr-1 custom-scrollbar">
-{cart.length === 0 ? (
-<div className="py-10 text-center text-gray-500">
-<p className="text-xs font-medium">Поднос бос</p>
-<p className="text-[11px] text-gray-400 mt-1">Мәзірден дәмді тағамдарды таңдаңыз</p>
-</div>
-) : (
-cart.map(item => (
-<div key={item.cartId} className="bg-[#241611] p-2.5 rounded-xl border border-[#3A2216] flex justify-between items-center text-xs">
-<div className="flex items-center space-x-2">
-<div>
-<p className="font-bold text-[#F3E5AB] leading-tight">{item.name}</p>
-<p className="text-[#D4AF37] font-extrabold text-[11px]">{item.price * item.quantity}₸</p>
-</div>
-</div>
-<div className="flex items-center space-x-1.5 bg-[#180E0A] px-2 py-1 rounded border border-[#3A2216]">
-<button onClick={() => updateQuantity(item.cartId, -1)} className="text-[#D4AF37] font-bold">-</button>
-<span className="font-bold px-1">{item.quantity}</span>
-<button onClick={() => updateQuantity(item.cartId, 1)} className="text-[#D4AF37] font-bold">+</button>
-</div>
-</div>
-))
-)}
-</div>
-</div>
-​<div className="pt-3 border-t border-[#3A2216]">
-<div className="flex justify-between items-center mb-2">
-<span className="text-xs text-gray-300 font-bold uppercase">ЖАЛПЫ:</span>
-<span className="text-xl font-black text-[#F3E5AB]">{cartTotal}₸</span>
-</div>
-<button
-disabled={cart.length === 0}
-onClick={() => setShowOrderModal(true)}
-className="w-full bg-gradient-to-r from-[#D4AF37] to-[#B8860B] disabled:opacity-40 hover:from-[#F3E5AB] text-[#1F1410] font-black py-3 rounded-xl text-xs uppercase shadow tracking-wider"
->
-ТАПСЫРЫС БЕРУ ❤️
-</button>
-</div>
-</div>
-</aside>
-</main>
-)}
-​{showOrderModal && (
-<div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
-<div className="bg-[#2A1B15] border border-[#3D291F] rounded-2xl max-w-md w-full p-5 shadow-2xl relative">
-<button onClick={() => setShowOrderModal(false)} className="absolute top-4 right-4 text-gray-400">✕</button>
-<h3 className="text-lg font-bold text-[#F3E5AB]">Тапсырысты Рәсімдеу</h3>
-<p className="text-xs text-[#D4AF37] mt-0.5">Тапсырыс +7 (702) 648-08-87 WhatsApp-ына жіберіледі</p>
-​<form onSubmit={handleSendWhatsAppOrder} className="space-y-3 mt-4 text-xs">
-<div>
-<label className="block text-gray-300 font-bold mb-1">Аты-жөніңіз *</label>
-<input required placeholder="Мұхаммед" value={orderForm.name} onChange={e => setOrderForm({...orderForm, name: e.target.value})} className="w-full bg-[#1F1410] border border-[#3D291F] rounded-lg p-2 text-white" />
-</div>
-​<div>
-<label className="block text-gray-300 font-bold mb-1">Телефон нөміріңіз *</label>
-<input required placeholder="+7 (702) 648-08-87" value={orderForm.phone} onChange={e => setOrderForm({...orderForm, phone: e.target.value})} className="w-full bg-[#1F1410] border border-[#3D291F] rounded-lg p-2 text-white" />
-</div>
-​<div>
-<label className="block text-gray-300 font-bold mb-1">Тапсырыс түрі</label>
-<div className="grid grid-cols-2 gap-2">
-<button type="button" onClick={() => setOrderForm({...orderForm, orderType: 'delivery'})} className={py-2 rounded-lg font-bold ${orderForm.orderType === 'delivery' ? 'bg-[#D4AF37] text-[#1F1410]' : 'bg-[#1F1410] text-gray-400 border border-[#3D291F]'}}>
-Жеткізу
-</button>
-<button type="button" onClick={() => setOrderForm({...orderForm, orderType: 'pickup'})} className={py-2 rounded-lg font-bold ${orderForm.orderType === 'pickup' ? 'bg-[#D4AF37] text-[#1F1410]' : 'bg-[#1F1410] text-gray-400 border border-[#3D291F]'}}>
-Өзі алып кету
-</button>
-</div>
-</div>
-​{orderForm.orderType === 'delivery' && (
-<div>
-<label className="block text-gray-300 font-bold mb-1">Жеткізу мекенжайы *</label>
-<input required placeholder="Көше, үй, пәтер..." value={orderForm.address} onChange={e => setOrderForm({...orderForm, address: e.target.value})} className="w-full bg-[#1F1410] border border-[#3D291F] rounded-lg p-2 text-white" />
-</div>
-)}
-​<div>
-<label className="block text-gray-300 font-bold mb-1">Қосымша түсініктеме</label>
-<textarea placeholder="Домофон, подъезд..." value={orderForm.comment} onChange={e => setOrderForm({...orderForm, comment: e.target.value})} className="w-full bg-[#1F1410] border border-[#3D291F] rounded-lg p-2 text-white" rows="2" />
-</div>
-​<button type="submit" className="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 rounded-xl uppercase tracking-wider text-xs shadow-lg mt-2">
-WhatsApp-қа Тапсырыс Жіберу (+77026480887) ➔
-</button>
-</form>
-</div>
-</div>
-)}
-​{showAdminModal && (
-<div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-sm flex items-center justify-center p-4">
-<div className="bg-[#2A1B15] border border-[#3D291F] rounded-2xl max-w-xl w-full p-5 shadow-2xl relative max-h-[90vh] overflow-y-auto">
-<button onClick={() => setShowAdminModal(false)} className="absolute top-4 right-4 text-gray-400">✕</button>
-​<h3 className="text-lg font-bold text-[#F3E5AB]">Филиалды Басқару Панелі</h3>
-​<div className="mt-3">
-<label className="block text-xs text-gray-400 mb-1">Басқаратын Точканы таңдаңыз:</label>
-<select
-value={adminBranch?.id}
-onChange={(e) => {
-const b = ATYRAU_BRANCHES.find(item => item.id === Number(e.target.value));
-setAdminBranch(b);
-setIsAdminAuthorized(false);
-setPinInput('');
-setPinError('');
-}}
-className="w-full bg-[#1F1410] border border-[#3D291F] text-[#F3E5AB] text-xs rounded-lg p-2 font-bold"
->
-{ATYRAU_BRANCHES.map(b => (
-<option key={b.id} value={b.id}>{b.name}</option>
-))}
-</select>
-</div>
-​{!isAdminAuthorized ? (
-<form onSubmit={handleAdminLogin} className="mt-6 max-w-xs mx-auto text-center space-y-3">
-<div className="w-12 h-12 rounded-full bg-[#3D291F] text-[#D4AF37] flex items-center justify-center mx-auto text-xl font-bold border border-[#D4AF37]">
-🔒
-</div>
-<p className="text-xs text-gray-300">
-<strong>{adminBranch?.name}</strong> басқару үшін арнайы PIN-кодты енгізіңіз:
-</p>
-{pinError && <p className="text-xs text-rose-400 font-bold">{pinError}</p>}
-<input
-type="password"
-placeholder="PIN-код жазыңыз..."
-value={pinInput}
-onChange={e => setPinInput(e.target.value)}
-className="w-full bg-[#1F1410] border border-[#3D291F] rounded-lg p-2.5 text-center text-white text-sm font-bold"
-/>
-<button type="submit" className="w-full bg-[#D4AF37] text-[#1F1410] font-bold py-2 rounded-lg text-xs uppercase">
-Рұқсат алу
-</button>
-</form>
-) : (
-<div className="mt-5 space-y-4">
-<div className="flex justify-between items-center bg-emerald-950/60 border border-emerald-800 p-2.5 rounded-lg text-xs">
-<span className="text-emerald-400 font-bold">✓ {adminBranch.name} — Рұқсат берілді</span>
-</div>
-​<div>
-<h4 className="text-xs font-bold text-[#D4AF37] uppercase mb-2">
-Тамақтардың бұл точкада Бар/Жоғын басқару:
-</h4>
-<div className="space-y-2 max-h-72 overflow-y-auto pr-1 custom-scrollbar">
-{products.map(prod => {
-const isAvail = (prod.stockStatus ? prod.stockStatus[adminBranch.id] : undefined) !== false;
-return (
-<div key={prod.id} className="flex items-center justify-between bg-[#1F1410] p-2.5 rounded-lg border border-[#3D291F]">
-<div>
-<p className="text-xs font-bold text-[#F3E5AB]">{prod.name}</p>
-<p className="text-[10px] text-gray-400">{prod.price}₸</p>
-</div>
-​<button
-onClick={() => toggleProductStock(prod.id)}
-className={px-3 py-1 rounded-md text-xs font-bold transition-all ${ isAvail  ? 'bg-emerald-700 text-white'  : 'bg-rose-700 text-white' }}
->
-{isAvail ? 'В наличии (Бар)' : 'Әзірге жоқ (Таусылды)'}
-</button>
-</div>
-);
-})}
-</div>
-</div>
-</div>
-)}
-</div>
-</div>
-)}
-​<footer className="bg-[#160E0B] border-t border-[#3D291F] py-5 px-4 text-center text-xs text-gray-400 mt-auto">
-<p className="font-bold text-[#F3E5AB]">APORT ASHANA — Атырау қаласы</p>
-<p className="text-[11px] text-gray-400 mt-1">Тапсырыс қабылдау нөмірі: +7 702 648 0887 © 2026</p>
-</footer>
-</div>
-);
-}
-​ReactDOM.createRoot(document.getElementById('root')).render(<App />);
-</script>
+<body class="min-h-screen flex flex-col">
+  <header class="sticky top-0 z-40 border-b border-[#493326] bg-[#21140f]/95 backdrop-blur-xl">
+    <div class="mx-auto max-w-7xl px-4 py-3 flex items-center justify-between gap-3">
+      <div class="flex items-center gap-3 min-w-0">
+        <button id="backBtn" type="button" aria-label="Филиал таңдауға қайту"
+          class="hidden focus-ring rounded-full border border-[#59402c] p-2 gold-text hover:bg-[#3a281d] smooth">←</button>
+        <button type="button" id="brandHome" class="flex items-center gap-3 text-left min-w-0 focus-ring rounded-xl">
+          <div class="h-11 w-11 shrink-0 overflow-hidden rounded-full border-2 border-[#d7b45a] bg-white flex items-center justify-center">
+            <img src="./logo.jpg" alt="APORT ASHANA логотипі" class="h-full w-full object-cover"
+                 onerror="this.style.display='none';this.nextElementSibling.classList.remove('hidden')">
+            <span class="hidden font-black text-xl text-[#21140f]">A</span>
+          </div>
+          <span class="min-w-0">
+            <span class="block font-black tracking-wide text-[#f5e8bd] leading-tight">APORT ASHANA</span>
+            <span class="block text-[10px] uppercase tracking-[.2em] gold-text">Атырау желісі ❤️</span>
+          </span>
+        </button>
+      </div>
+      <div id="headerBranchBadge" class="hidden md:flex items-center gap-3 rounded-full border border-[#493326] bg-[#160e0b] px-4 py-2 text-xs">
+        <span id="headerBranchName" class="max-w-[250px] truncate text-stone-300"></span>
+        <button type="button" class="gold-text font-bold hover:underline focus-ring" data-action="change-branch">Ауыстыру</button>
+      </div>
+      <button id="mobileCartBtn" type="button" class="lg:hidden gold-button rounded-full px-4 py-2 text-xs font-extrabold shadow-lg focus-ring">
+        Себет <span id="mobileCartCount" class="ml-1 rounded-full bg-[#21140f] px-2 py-0.5 text-[#f5e8bd]">0</span>
+      </button>
+    </div>
+  </header>
+
+  <main class="mx-auto w-full max-w-7xl flex-1 px-4 py-6 sm:px-6">
+    <section id="branchView">
+      <div class="mx-auto mb-7 max-w-2xl text-center">
+        <span class="inline-flex rounded-full border border-[#6a512d] bg-[#382719] px-4 py-1.5 text-[10px] font-bold uppercase tracking-[.22em] gold-text">Атырау қаласы · 5 филиал</span>
+        <p class="mt-4 text-xs font-semibold uppercase tracking-[.3em] text-stone-400">Дәмді сәттер осы жерден басталады</p>
+        <h1 class="mt-2 text-3xl font-black tracking-tight text-[#f5e8bd] sm:text-4xl">Филиалды таңдаңыз</h1>
+        <p class="mt-3 text-sm text-stone-300">Өзіңізге ыңғайлы мекенжайды таңдап, мәзірді ашыңыз.</p>
+      </div>
+      <div class="mb-7 overflow-hidden rounded-3xl border border-[#59402c] shadow-2xl">
+        <div id="map" class="h-[330px] w-full sm:h-[410px]" aria-label="Атыраудағы APORT ASHANA филиалдарының картасы"></div>
+      </div>
+      <div id="branchGrid" class="grid gap-4 md:grid-cols-2 xl:grid-cols-3"></div>
+    </section>
+
+    <section id="menuView" class="hidden lg:grid lg:grid-cols-[minmax(0,1fr)_360px] lg:gap-7">
+      <div class="min-w-0">
+        <div class="mb-6 rounded-3xl border border-[#59402c] bg-gradient-to-r from-[#2a1a13] via-[#3b281b] to-[#2a1a13] p-6 text-center shadow-xl">
+          <p id="activeBranchTitle" class="mb-2 text-[10px] font-bold uppercase tracking-[.2em] gold-text"></p>
+          <h2 class="text-2xl font-black text-[#f5e8bd] sm:text-3xl">Қош келдіңіз! Мәзір ❤️</h2>
+          <p class="mt-2 text-xs text-stone-300">Ұнаған тағамды себетке қосыңыз</p>
+        </div>
+        <nav class="sticky top-[66px] z-30 mb-5 overflow-x-auto border-b border-[#493326] bg-[#1b100c]/95 py-3 backdrop-blur-xl no-scrollbar">
+          <div id="categoryContainer" class="flex min-w-max gap-2"></div>
+        </nav>
+        <div id="productGrid" class="grid gap-4 sm:grid-cols-2 xl:grid-cols-3"></div>
+      </div>
+
+      <aside id="trayAside" class="fixed inset-y-0 right-0 z-[60] w-full max-w-[390px] translate-x-full p-3 transition-transform duration-300 lg:sticky lg:top-[88px] lg:z-10 lg:h-[calc(100vh-110px)] lg:w-auto lg:max-w-none lg:translate-x-0 lg:p-0">
+        <div id="trayOverlay" class="absolute inset-0 -z-10 hidden bg-black/70 lg:hidden"></div>
+        <div class="flex h-full flex-col justify-between rounded-3xl border-2 border-[#493326] bg-[#160e0b] p-4 shadow-2xl">
+          <div class="min-h-0">
+            <div class="flex items-center justify-between border-b border-[#493326] pb-4">
+              <div>
+                <p class="text-[10px] font-bold uppercase tracking-[.2em] gold-text">Сіздің таңдауыңыз</p>
+                <h3 class="mt-1 text-sm font-black text-[#f5e8bd]">ҚОҢЫР ПОДНОС</h3>
+              </div>
+              <div class="flex items-center gap-2">
+                <span id="trayCountBadge" class="rounded-full border border-[#59402c] bg-[#2a1a13] px-3 py-1 text-[10px] font-bold gold-text">0 тағам</span>
+                <button id="closeTrayBtn" type="button" class="rounded-full p-2 text-stone-400 hover:bg-[#302017] lg:hidden" aria-label="Себетті жабу">✕</button>
+              </div>
+            </div>
+            <div class="mt-3 flex items-center justify-between gap-2 rounded-xl border border-[#493326] bg-[#21140f] p-3 text-[11px]">
+              <span id="trayBranchName" class="truncate text-stone-300"></span>
+              <button type="button" class="shrink-0 font-bold gold-text hover:underline" data-action="change-branch">Өзгерту</button>
+            </div>
+            <div id="cartItemsContainer" class="custom-scrollbar mt-4 max-h-[calc(100vh-340px)] space-y-3 overflow-y-auto pr-1"></div>
+          </div>
+          <div class="mt-4 border-t border-[#493326] pt-4">
+            <div class="mb-3 flex items-center justify-between">
+              <span class="text-xs font-bold uppercase tracking-wider text-stone-400">Жалпы сома</span>
+              <span id="cartTotalSum" class="text-2xl font-black text-[#f5e8bd]">0 ₸</span>
+            </div>
+            <button id="checkoutBtn" type="button" disabled class="gold-button w-full rounded-xl py-3.5 text-xs font-black uppercase tracking-wider shadow-lg smooth disabled:cursor-not-allowed disabled:opacity-40">Тапсырыс беру ❤️</button>
+            <p class="mt-2 text-center text-[10px] text-stone-500">Тапсырыс WhatsApp арқылы жіберіледі</p>
+          </div>
+        </div>
+      </aside>
+    </section>
+  </main>
+
+  <footer class="mt-auto border-t border-[#493326] bg-[#160e0b] px-4 py-6 text-center">
+    <p class="font-extrabold tracking-wide text-[#f5e8bd]">APORT ASHANA <span class="gold-text">—</span> Атырау</p>
+    <p class="mt-1 text-xs text-stone-400">Байланыс: <a class="gold-text hover:underline" href="tel:+77785802308">+7 778 580 2308</a></p>
+    <p class="mt-2 text-[10px] text-stone-600">© <span id="year"></span> APORT ASHANA. Барлық құқықтар қорғалған.</p>
+  </footer>
+
+  <div id="orderModal" class="modal-backdrop fixed inset-0 z-[80] hidden items-center justify-center overflow-y-auto p-4">
+    <div class="panel relative my-auto w-full max-w-md rounded-3xl p-5 shadow-2xl sm:p-6">
+      <button id="closeModalBtn" type="button" class="absolute right-4 top-4 rounded-full p-2 text-stone-400 hover:bg-[#493326]" aria-label="Терезені жабу">✕</button>
+      <p class="text-[10px] font-bold uppercase tracking-[.2em] gold-text">Соңғы қадам</p>
+      <h3 class="mt-1 text-xl font-black text-[#f5e8bd]">Тапсырысты рәсімдеу</h3>
+      <p class="mt-1 text-xs text-stone-400">Мәліметтерді толтырыңыз. Тапсырыс WhatsApp-та дайын хабарлама түрінде ашылады.</p>
+      <form id="orderForm" class="mt-5 space-y-4">
+        <div>
+          <label for="inputName" class="mb-1.5 block text-xs font-bold text-stone-300">Аты-жөніңіз *</label>
+          <input id="inputName" name="name" required maxlength="80" autocomplete="name" placeholder="Атыңыз"
+            class="focus-ring w-full rounded-xl border border-[#59402c] bg-[#160e0b] px-3 py-3 text-sm text-white placeholder:text-stone-600">
+        </div>
+        <div>
+          <label for="inputPhone" class="mb-1.5 block text-xs font-bold text-stone-300">Телефон нөміріңіз *</label>
+          <input id="inputPhone" name="phone" required type="tel" maxlength="20" autocomplete="tel" placeholder="+7 7XX XXX XX XX"
+            class="focus-ring w-full rounded-xl border border-[#59402c] bg-[#160e0b] px-3 py-3 text-sm text-white placeholder:text-stone-600">
+        </div>
+        <fieldset>
+          <legend class="mb-2 text-xs font-bold text-stone-300">Тапсырыс түрі</legend>
+          <div class="grid grid-cols-2 gap-2">
+            <label class="cursor-pointer">
+              <input class="peer sr-only" type="radio" name="orderType" value="delivery" checked>
+              <span class="block rounded-xl border border-[#59402c] bg-[#160e0b] py-3 text-center text-xs font-bold text-stone-400 peer-checked:border-[#d7b45a] peer-checked:bg-[#d7b45a] peer-checked:text-[#21140f]">Жеткізу</span>
+            </label>
+            <label class="cursor-pointer">
+              <input class="peer sr-only" type="radio" name="orderType" value="pickup">
+              <span class="block rounded-xl border border-[#59402c] bg-[#160e0b] py-3 text-center text-xs font-bold text-stone-400 peer-checked:border-[#d7b45a] peer-checked:bg-[#d7b45a] peer-checked:text-[#21140f]">Өзі алып кету</span>
+            </label>
+          </div>
+        </fieldset>
+        <div id="addressGroup">
+          <label for="inputAddress" class="mb-1.5 block text-xs font-bold text-stone-300">Жеткізу мекенжайы *</label>
+          <input id="inputAddress" name="address" required maxlength="200" autocomplete="street-address" placeholder="Көше, үй, пәтер"
+            class="focus-ring w-full rounded-xl border border-[#59402c] bg-[#160e0b] px-3 py-3 text-sm text-white placeholder:text-stone-600">
+        </div>
+        <div>
+          <label for="inputComment" class="mb-1.5 block text-xs font-bold text-stone-300">Қосымша түсініктеме</label>
+          <textarea id="inputComment" name="comment" maxlength="500" rows="3" placeholder="Домофон, подъезд немесе басқа ақпарат"
+            class="focus-ring w-full resize-y rounded-xl border border-[#59402c] bg-[#160e0b] px-3 py-3 text-sm text-white placeholder:text-stone-600"></textarea>
+        </div>
+        <button type="submit" class="w-full rounded-xl bg-[#16834b] py-3.5 text-xs font-black uppercase tracking-wider text-white shadow-lg hover:bg-[#1b9a59] focus-ring">WhatsApp-қа жіберу →</button>
+        <p class="text-center text-[10px] text-stone-500">Жіберу батырмасын басқанда WhatsApp жаңа бетте ашылады.</p>
+      </form>
+    </div>
+  </div>
+
+  <div id="toast" role="status" aria-live="polite" class="pointer-events-none fixed bottom-5 left-1/2 z-[100] hidden -translate-x-1/2 rounded-full border border-[#8a6b36] bg-[#2a1a13] px-5 py-3 text-xs font-semibold text-[#f5e8bd] shadow-xl"></div>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+          integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+  <script>
+    'use strict';
+
+    const WHATSAPP_NUMBER = '77785802308';
+    const BRANCHES = [
+      { id:1, name:'APORT ASHANA — Привокзальный (Баймұханов)', address:'Муса Баймуханова улица, Атырау', coords:[47.130154,51.941225], phone:WHATSAPP_NUMBER },
+      { id:2, name:'APORT ASHANA — Сарыарқа мөлтек ауданы', address:'микрорайон Сарыарка, Атырау', coords:[47.108339,51.909148], phone:WHATSAPP_NUMBER },
+      { id:3, name:'APORT ASHANA — Махамбет Өтемісов көшесі', address:'Махамбета Утемисова улица, Атырау', coords:[47.105747,51.929124], phone:WHATSAPP_NUMBER },
+      { id:4, name:'APORT ASHANA — Авангард', address:'микрорайон Авангард, Атырау', coords:[47.096409,51.874256], phone:WHATSAPP_NUMBER },
+      { id:5, name:'APORT ASHANA — Алмагүл мөлтек ауданы', address:'микрорайон Алмагуль, Атырау', coords:[47.118693,51.939990], phone:WHATSAPP_NUMBER }
+    ];
+
+    // Бастапқы кодта берілген өнімдер мен бағалар сақталды.
+    const PRODUCTS = [
+      { id:'m1', category:'НЕГІЗГІ ТАҒАМДАР', name:'Дәстүрлі өзбек пловы', price:1550, weight:'350 г', image:'./plov.jpg', description:'Нәзік ет, сары сәбіз, ноқат және сарымсақ қосылған өзбек пловы.' },
+      { id:'m2', category:'НЕГІЗГІ ТАҒАМДАР', name:'Қуырған лагман', price:1800, weight:'380 г', image:'./lagman.jpg', description:'Қолдан созылған лапша, жас ет және көкөністермен қуырылған.' },
+      { id:'m3', category:'НЕГІЗГІ ТАҒАМДАР', name:'Қазақша бешбармақ', price:2200, weight:'450 г', image:'./beshbarmak.jpg', description:'Нәзік ет, жұқа жайма және сорпаға бұқтырылған пияз тұздығы.' },
+      { id:'g1', category:'ГАРНИРЛЕР', name:'Ақ бу күріші', price:350, weight:'180 г', image:'./rice.jpg', description:'Буға пісірілген дәмді ақ күріш гарнирі.' }
+    ];
+    const CATEGORIES = ['НЕГІЗГІ ТАҒАМДАР','ГАРНИРЛЕР','ТАУЫҚ ЕТТЕРІ','САЛАТТАР','СОРПАЛАР','СУСЫНДАР'];
+
+    let selectedBranch = null;
+    let cart = [];
+    let activeCategory = CATEGORIES[0];
+    let mapInstance = null;
+    let toastTimer = null;
+
+    const $ = (id) => document.getElementById(id);
+    const money = (amount) => new Intl.NumberFormat('kk-KZ').format(amount) + ' ₸';
+    const escapeHtml = (value) => String(value).replace(/[&<>"']/g, ch => ({
+      '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
+    })[ch]);
+
+    function showToast(message) {
+      const toast = $('toast');
+      toast.textContent = message;
+      toast.classList.remove('hidden');
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => toast.classList.add('hidden'), 2400);
+    }
+
+    function initMap() {
+      if (mapInstance || !window.L) return;
+      mapInstance = L.map('map', { scrollWheelZoom:false }).setView([47.112,51.915], 12);
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom:19,
+        attribution:'&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a>'
+      }).addTo(mapInstance);
+
+      const bounds = [];
+      BRANCHES.forEach(branch => {
+        const marker = L.marker(branch.coords).addTo(mapInstance);
+        marker.bindPopup(
+          `<div class="font-bold">${escapeHtml(branch.name)}</div>
+           <div class="mt-1 text-xs">${escapeHtml(branch.address)}</div>
+           <button type="button" class="mt-2 rounded-lg bg-[#d7b45a] px-3 py-1.5 text-xs font-bold text-[#21140f]"
+             onclick="selectBranchById(${branch.id})">Осы филиалды таңдау</button>`
+        );
+        marker.on('click', () => marker.openPopup());
+        bounds.push(branch.coords);
+      });
+      mapInstance.fitBounds(bounds, { padding:[28,28] });
+    }
+
+    function renderBranches() {
+      $('branchGrid').innerHTML = BRANCHES.map(branch => `
+        <article class="panel flex flex-col justify-between rounded-2xl p-5 shadow-lg smooth hover:-translate-y-1 hover:border-[#d7b45a]">
+          <div>
+            <div class="flex items-start justify-between gap-2">
+              <span class="rounded-full border border-emerald-900 bg-emerald-950/70 px-2.5 py-1 text-[10px] font-bold text-emerald-300">Филиал ${branch.id}</span>
+              <span class="text-lg gold-text">✦</span>
+            </div>
+            <h3 class="mt-3 text-base font-extrabold leading-snug text-[#f5e8bd]">${escapeHtml(branch.name)}</h3>
+            <p class="mt-3 flex gap-2 text-xs leading-relaxed text-stone-400"><span class="gold-text">⌖</span><span>${escapeHtml(branch.address)}</span></p>
+          </div>
+          <button type="button" onclick="selectBranchById(${branch.id})"
+            class="gold-button focus-ring mt-5 w-full rounded-xl py-3 text-xs font-black uppercase tracking-wide smooth">
+            Филиалды таңдау <span aria-hidden="true">→</span>
+          </button>
+        </article>
+      `).join('');
+    }
+
+    function selectBranchById(id) {
+      const branch = BRANCHES.find(item => item.id === Number(id));
+      if (branch) selectBranch(branch);
+    }
+
+    function selectBranch(branch) {
+      if (!branch) {
+        $('branchView').classList.remove('hidden');
+        $('menuView').classList.add('hidden');
+        $('backBtn').classList.add('hidden');
+        $('headerBranchBadge').classList.add('hidden');
+        closeTray();
+        if (mapInstance) setTimeout(() => mapInstance.invalidateSize(), 100);
+        return;
+      }
+      selectedBranch = branch;
+      $('branchView').classList.add('hidden');
+      $('menuView').classList.remove('hidden');
+      $('backBtn').classList.remove('hidden');
+      $('headerBranchBadge').classList.remove('hidden');
+      $('headerBranchName').textContent = '⌖ ' + branch.name;
+      $('activeBranchTitle').textContent = 'АТЫРАУ · ' + branch.name;
+      $('trayBranchName').textContent = '⌖ ' + branch.name;
+      renderProducts();
+      renderCart();
+      window.scrollTo({ top:0, behavior:'smooth' });
+    }
+
+    function renderCategories() {
+      $('categoryContainer').innerHTML = CATEGORIES.map(category => {
+        const active = category === activeCategory;
+        return `<button type="button" data-category="${escapeHtml(category)}"
+          class="focus-ring rounded-full px-4 py-2.5 text-[11px] font-extrabold smooth ${active
+            ? 'bg-[#d7b45a] text-[#21140f]'
+            : 'border border-[#493326] bg-[#2a1a13] text-stone-300 hover:border-[#d7b45a] hover:text-[#f5e8bd]'}">${escapeHtml(category)}</button>`;
+      }).join('');
+    }
+
+    function renderProducts() {
+      const products = PRODUCTS.filter(product => product.category === activeCategory);
+      if (!products.length) {
+        $('productGrid').innerHTML = `<div class="col-span-full rounded-2xl border border-dashed border-[#59402c] px-5 py-12 text-center">
+          <div class="text-3xl gold-text">✦</div>
+          <p class="mt-3 font-bold text-[#f5e8bd]">Бұл санаттағы тағамдар әзірге мәзірге қосылмаған</p>
+          <p class="mt-1 text-xs text-stone-500">Жаңа тағамдар қосылғанда осы жерде көрсетіледі.</p>
+        </div>`;
+        return;
+      }
+      $('productGrid').innerHTML = products.map(product => `
+        <article class="panel flex flex-col overflow-hidden rounded-2xl shadow-lg smooth hover:-translate-y-1 hover:border-[#8a6b36]">
+          <div class="product-image relative h-48 overflow-hidden">
+            <img src="${escapeHtml(product.image)}" alt="${escapeHtml(product.name)}" loading="lazy"
+              class="h-full w-full object-cover" onerror="this.style.display='none';this.nextElementSibling.classList.remove('hidden')">
+            <div class="hidden absolute inset-0 items-center justify-center text-5xl gold-text">✦</div>
+            <span class="absolute right-3 top-3 rounded-full border border-[#7b6038] bg-[#1b100c]/90 px-3 py-1 text-[10px] font-bold text-[#f5e8bd]">${escapeHtml(product.weight)}</span>
+          </div>
+          <div class="flex flex-1 flex-col p-4">
+            <h3 class="text-base font-extrabold text-[#f5e8bd]">${escapeHtml(product.name)}</h3>
+            <p class="mt-2 flex-1 text-xs leading-relaxed text-stone-400">${escapeHtml(product.description)}</p>
+            <div class="mt-5 flex items-center justify-between gap-2">
+              <span class="text-lg font-black gold-text">${money(product.price)}</span>
+              <button type="button" onclick="addToCart('${product.id}')"
+                class="focus-ring rounded-xl border border-[#6a512d] bg-[#3a281d] px-4 py-2.5 text-xs font-extrabold text-[#f5e8bd] smooth hover:bg-[#d7b45a] hover:text-[#21140f]">＋ Қосу</button>
+            </div>
+          </div>
+        </article>
+      `).join('');
+    }
+
+    function addToCart(productId) {
+      const product = PRODUCTS.find(item => item.id === productId);
+      if (!product) return;
+      const existing = cart.find(item => item.id === productId);
+      if (existing) existing.qty += 1;
+      else cart.push({ ...product, qty:1 });
+      renderCart();
+      showToast(product.name + ' себетке қосылды');
+    }
+
+    function updateQty(productId, delta) {
+      const item = cart.find(entry => entry.id === productId);
+      if (!item) return;
+      item.qty += delta;
+      if (item.qty <= 0) cart = cart.filter(entry => entry.id !== productId);
+      renderCart();
+    }
+
+    function renderCart() {
+      const totalQty = cart.reduce((sum,item) => sum + item.qty, 0);
+      const total = cart.reduce((sum,item) => sum + item.price * item.qty, 0);
+      $('mobileCartCount').textContent = totalQty;
+      $('trayCountBadge').textContent = totalQty + ' тағам';
+      $('cartTotalSum').textContent = money(total);
+      $('checkoutBtn').disabled = cart.length === 0;
+
+      if (!cart.length) {
+        $('cartItemsContainer').innerHTML = `<div class="py-12 text-center">
+          <div class="text-4xl text-[#705333]">♧</div>
+          <p class="mt-3 text-sm font-bold text-stone-400">Себетіңіз әзірге бос</p>
+          <p class="mt-1 text-[11px] text-stone-600">Мәзірден тағам таңдап көріңіз</p>
+        </div>`;
+        return;
+      }
+      $('cartItemsContainer').innerHTML = cart.map(item => `
+        <div class="flex items-center justify-between gap-3 rounded-xl border border-[#493326] bg-[#21140f] p-3">
+          <div class="min-w-0">
+            <p class="truncate text-xs font-bold text-[#f5e8bd]">${escapeHtml(item.name)}</p>
+            <p class="mt-1 text-xs font-bold gold-text">${money(item.price * item.qty)}</p>
+          </div>
+          <div class="flex shrink-0 items-center gap-3 rounded-lg border border-[#493326] bg-[#160e0b] px-2 py-1.5">
+            <button type="button" aria-label="${escapeHtml(item.name)} санын азайту" onclick="updateQty('${item.id}',-1)" class="px-1 font-black gold-text">−</button>
+            <span class="min-w-[14px] text-center text-xs font-bold">${item.qty}</span>
+            <button type="button" aria-label="${escapeHtml(item.name)} санын көбейту" onclick="updateQty('${item.id}',1)" class="px-1 font-black gold-text">+</button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function openTray() {
+      $('trayAside').classList.remove('translate-x-full');
+      $('trayOverlay').classList.remove('hidden');
+    }
+    function closeTray() {
+      $('trayAside').classList.add('translate-x-full');
+      $('trayOverlay').classList.add('hidden');
+    }
+    function openModal() {
+      if (!cart.length) return;
+      $('orderModal').classList.remove('hidden');
+      $('orderModal').classList.add('flex');
+      document.body.style.overflow = 'hidden';
+      $('inputName').focus();
+    }
+    function closeModal() {
+      $('orderModal').classList.add('hidden');
+      $('orderModal').classList.remove('flex');
+      document.body.style.overflow = '';
+    }
+
+    function toggleAddress() {
+      const delivery = document.querySelector('input[name="orderType"]:checked').value === 'delivery';
+      $('addressGroup').classList.toggle('hidden', !delivery);
+      $('inputAddress').required = delivery;
+    }
+
+    function handleOrderSubmit(event) {
+      event.preventDefault();
+      if (!selectedBranch || !cart.length) {
+        showToast('Алдымен филиал мен тағамдарды таңдаңыз');
+        return;
+      }
+      const form = new FormData(event.currentTarget);
+      const name = String(form.get('name') || '').trim();
+      const phone = String(form.get('phone') || '').trim();
+      const orderType = String(form.get('orderType') || 'delivery');
+      const address = String(form.get('address') || '').trim();
+      const comment = String(form.get('comment') || '').trim();
+      const digits = phone.replace(/\D/g,'');
+      if (digits.length < 10 || digits.length > 15) {
+        $('inputPhone').setCustomValidity('Телефон нөмірін дұрыс енгізіңіз.');
+        $('inputPhone').reportValidity();
+        $('inputPhone').setCustomValidity('');
+        return;
+      }
+      if (orderType === 'delivery' && !address) {
+        $('inputAddress').reportValidity();
+        return;
+      }
+
+      const lines = cart.map((item,index) =>
+        `${index + 1}. ${item.name} × ${item.qty} — ${money(item.price * item.qty)}`
+      ).join('\n');
+      const total = cart.reduce((sum,item) => sum + item.price * item.qty, 0);
+      const message = [
+        'Сәлеметсіз бе! ❤️',
+        'APORT ASHANA-дан тапсырыс!',
+        '',
+        `📍 Филиал: ${selectedBranch.name}`,
+        `👤 Тапсырыс беруші: ${name}`,
+        `📞 Телефон: ${phone}`,
+        `🚚 Түрі: ${orderType === 'delivery' ? 'Жеткізу' : 'Өзі алып кету'}`,
+        `📍 Мекенжай: ${orderType === 'delivery' ? address : 'Рестораннан алып кету'}`,
+        '',
+        '🛒 ТАПСЫРЫС:',
+        lines,
+        '',
+        `💰 ЖАЛПЫ СОММА: ${money(total)}`,
+        `📝 Ескертпе: ${comment || 'Жоқ'}`,
+        '',
+        'APORT ASHANA ❤️'
+      ].join('\n');
+
+      const url = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`;
+      const popup = window.open(url, '_blank', 'noopener,noreferrer');
+      if (!popup) {
+        showToast('WhatsApp ашылмады. Браузердің қалқымалы терезе рұқсатын тексеріңіз.');
+        return;
+      }
+      closeModal();
+    }
+
+    document.addEventListener('click', event => {
+      const categoryButton = event.target.closest('[data-category]');
+      if (categoryButton) {
+        activeCategory = categoryButton.dataset.category;
+        renderCategories();
+        renderProducts();
+      }
+      const branchAction = event.target.closest('[data-action="change-branch"]');
+      if (branchAction) selectBranch(null);
+    });
+
+    $('backBtn').addEventListener('click', () => selectBranch(null));
+    $('brandHome').addEventListener('click', () => selectBranch(null));
+    $('mobileCartBtn').addEventListener('click', openTray);
+    $('closeTrayBtn').addEventListener('click', closeTray);
+    $('trayOverlay').addEventListener('click', closeTray);
+    $('checkoutBtn').addEventListener('click', openModal);
+    $('closeModalBtn').addEventListener('click', closeModal);
+    $('orderModal').addEventListener('click', event => {
+      if (event.target === $('orderModal')) closeModal();
+    });
+    $('orderForm').addEventListener('submit', handleOrderSubmit);
+    document.querySelectorAll('input[name="orderType"]').forEach(input => input.addEventListener('change', toggleAddress));
+    document.addEventListener('keydown', event => {
+      if (event.key === 'Escape') { closeModal(); closeTray(); }
+    });
+
+    function initApp() {
+      $('year').textContent = new Date().getFullYear();
+      renderBranches();
+      renderCategories();
+      renderProducts();
+      renderCart();
+      initMap();
+    }
+    window.selectBranchById = selectBranchById;
+    window.addToCart = addToCart;
+    window.updateQty = updateQty;
+    window.addEventListener('load', initApp);
+  </script>
 </body>
 </html>
