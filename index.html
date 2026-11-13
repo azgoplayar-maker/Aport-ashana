@@ -110,7 +110,7 @@
           </div>
           <div class="mt-4 border-t border-[#493326] pt-4">
             <div class="mb-3 flex items-center justify-between">
-              <span class="text-xs font-bold uppercase tracking-wider text-stone-400">Жалпы сома</span>
+              <span class="text-xs font-bold uppercase tracking-wider text-stone-400">Жалпы сома (ыдыспен)</span>
               <span id="cartTotalSum" class="text-2xl font-black text-[#f5e8bd]">0 ₸</span>
             </div>
             <button id="checkoutBtn" type="button" disabled class="gold-button w-full rounded-xl py-3.5 text-xs font-black uppercase tracking-wider shadow-lg smooth disabled:cursor-not-allowed disabled:opacity-40">Тапсырыс беру ❤️</button>
@@ -194,9 +194,16 @@
       { id:'m1', category:'НЕГІЗГІ ТАҒАМДАР', name:'Дәстүрлі өзбек пловы', price:1550, weight:'350 г', image:'./plov.jpg', description:'Нәзік ет, сары сәбіз, ноқат және сарымсақ қосылған өзбек пловы.' },
       { id:'m2', category:'НЕГІЗГІ ТАҒАМДАР', name:'Қуырған лагман', price:1800, weight:'380 г', image:'./lagman.jpg', description:'Қолдан созылған лапша, жас ет және көкөністермен қуырылған.' },
       { id:'m3', category:'НЕГІЗГІ ТАҒАМДАР', name:'Қазақша бешбармақ', price:2200, weight:'450 г', image:'./beshbarmak.jpg', description:'Нәзік ет, жұқа жайма және сорпаға бұқтырылған пияз тұздығы.' },
-      { id:'g1', category:'ГАРНИРЛЕР', name:'Ақ бу күріші', price:350, weight:'180 г', image:'./rice.jpg', description:'Буға пісірілген дәмді ақ күріш гарнирі.' }
+      { id:'g1', category:'ГАРНИРЛЕР', name:'Рис', price:350, weight:'150 г', image:'./rice.jpg', description:'Дәмді ақ күріш гарнирі.' },
+      { id:'g2', category:'ГАРНИРЛЕР', name:'Гречка', price:350, weight:'150 г', image:'./rice.jpg', description:'Хош иісті қарақұмық гарнирі.' },
+      { id:'g3', category:'ГАРНИРЛЕР', name:'Макарон', price:350, weight:'150 г', image:'./rice.jpg', description:'Жұмсақ піскен макарон гарнирі.' },
+      { id:'g4', category:'ГАРНИРЛЕР', name:'Картошка с сосисками', price:350, weight:'150 г', image:'./rice.jpg', description:'Картоп пен сосискадан дайындалған гарнир.' },
+      { id:'e1', category:'ЕТТЕР', name:'Курица в томатном соусе', price:1200, weight:'150 г', image:'./rice.jpg', description:'Томат соусындағы тауық еті.' },
+      { id:'e2', category:'ЕТТЕР', name:'Курица кисло-сладкий', price:1200, weight:'150 г', image:'./rice.jpg', description:'Тәтті-қышқыл тұздықтағы тауық еті.' },
+      { id:'e3', category:'ЕТТЕР', name:'Мясо по-тайски', price:1200, weight:'150 г', image:'./rice.jpg', description:'Тай стилінде дайындалған ет.' },
+      { id:'e4', category:'ЕТТЕР', name:'Мясо по-азиатски', price:1200, weight:'150 г', image:'./rice.jpg', description:'Азиялық стильде дайындалған ет.' }
     ];
-    const CATEGORIES = ['НЕГІЗГІ ТАҒАМДАР','ГАРНИРЛЕР','ТАУЫҚ ЕТТЕРІ','САЛАТТАР','СОРПАЛАР','СУСЫНДАР'];
+    const CATEGORIES = ['НЕГІЗГІ ТАҒАМДАР','ГАРНИРЛЕР','ЕТТЕР','КОМБО','САЛАТТАР','СОРПАЛАР','СУСЫНДАР'];
 
     let selectedBranch = null;
     let cart = [];
@@ -298,7 +305,65 @@
       }).join('');
     }
 
+    let comboGarnishSelected = 'g1';
+    let comboMeatSelected = 'e1';
+
+    function selectComboItem(type, id) {
+      if (type === 'garnish') comboGarnishSelected = id;
+      else comboMeatSelected = id;
+      renderProducts();
+    }
+
     function renderProducts() {
+      if (activeCategory === 'КОМБО') {
+        const garnishes = PRODUCTS.filter(product => product.category === 'ГАРНИРЛЕР');
+        const meats = PRODUCTS.filter(product => product.category === 'ЕТТЕР');
+        const garnishPhotos = {
+          g1:'https://images.unsplash.com/photo-1516684732162-798a0062be99?w=700&auto=format&fit=crop',
+          g2:'https://images.unsplash.com/photo-1586201375761-83865001e31c?w=700&auto=format&fit=crop',
+          g3:'https://images.unsplash.com/photo-1551183053-bf91a1d81141?w=700&auto=format&fit=crop',
+          g4:'https://images.unsplash.com/photo-1518977676601-b53f82aba655?w=700&auto=format&fit=crop'
+        };
+        const meatPhotos = {
+          e1:'https://images.unsplash.com/photo-1604908176997-125f25cc6f3d?w=700&auto=format&fit=crop',
+          e2:'https://images.unsplash.com/photo-1604503468506-a8da13d82791?w=700&auto=format&fit=crop',
+          e3:'https://images.unsplash.com/photo-1603133872878-684f208fb84b?w=700&auto=format&fit=crop',
+          e4:'https://images.unsplash.com/photo-1604908176997-125f25cc6f3d?w=700&auto=format&fit=crop'
+        };
+        const selectedGarnish = garnishes.find(item => item.id === comboGarnishSelected) || garnishes[0];
+        const selectedMeat = meats.find(item => item.id === comboMeatSelected) || meats[0];
+        const totalPrice = selectedGarnish.price + selectedMeat.price + 80;
+        const photoCard = (item, type, photo) => `
+          <button type="button" onclick="selectComboItem('${type}','${item.id}')"
+            class="overflow-hidden rounded-2xl border-2 text-left smooth ${((type === 'garnish' && item.id === selectedGarnish.id) || (type === 'meat' && item.id === selectedMeat.id)) ? 'border-[#d7b45a] bg-[#493322]' : 'border-[#493326] bg-[#21140f] hover:border-[#8a6b36]'}">
+            <img src="${photo}" alt="${escapeHtml(item.name)}" loading="lazy" class="h-32 w-full object-cover"
+              onerror="this.src='https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=700&auto=format&fit=crop'">
+            <span class="block p-3">
+              <span class="block text-sm font-extrabold text-[#f5e8bd]">${escapeHtml(item.name)}</span>
+              <span class="mt-1 block text-xs gold-text">${money(item.price)} · 150 г</span>
+              ${((type === 'garnish' && item.id === selectedGarnish.id) || (type === 'meat' && item.id === selectedMeat.id)) ? '<span class="mt-2 inline-block text-[10px] font-black gold-text">✓ ТАҢДАЛДЫ</span>' : ''}
+            </span>
+          </button>`;
+        $('productGrid').innerHTML = `
+          <div class="col-span-full panel rounded-2xl p-5 md:p-7">
+            <div class="mb-2 text-xs font-extrabold tracking-widest gold-text">APORT ASHANA · КОМБО</div>
+            <h3 class="text-xl font-black text-[#f5e8bd]">Өз комбоңды құрастыр</h3>
+            <p class="mt-2 text-sm text-stone-400">Алдымен гарнирді, содан кейін етті суреттерінен таңдап алыңыз. Екеуі бір ыдысқа салынады.</p>
+            <h4 class="mt-6 mb-3 text-sm font-extrabold text-[#f5e8bd]">1. Гарнир таңдаңыз · 150 г</h4>
+            <div class="grid grid-cols-2 gap-3 md:grid-cols-4">${garnishes.map(item => photoCard(item,'garnish',garnishPhotos[item.id])).join('')}</div>
+            <h4 class="mt-6 mb-3 text-sm font-extrabold text-[#f5e8bd]">2. Ет таңдаңыз · 150 г</h4>
+            <div class="grid grid-cols-2 gap-3 md:grid-cols-4">${meats.map(item => photoCard(item,'meat',meatPhotos[item.id] || 'https://images.unsplash.com/photo-1604908176997-125f25cc6f3d?w=700&auto=format&fit=crop')).join('')}</div>
+            <div class="mt-6 flex flex-wrap items-center justify-between gap-3 rounded-xl bg-[#21140f] p-4">
+              <div>
+                <p class="text-xs text-stone-400">Сіздің комбоңыз · 300 г · бір ыдыс</p>
+                <p class="mt-1 text-sm font-bold text-[#f5e8bd]">${escapeHtml(selectedGarnish.name)} + ${escapeHtml(selectedMeat.name)}</p>
+                <p class="mt-1 text-xl font-black gold-text">${money(selectedGarnish.price + selectedMeat.price)} + ${money(80)} ыдыс = ${money(totalPrice)}</p>
+              </div>
+              <button type="button" onclick="addComboToCart()" class="gold-button rounded-xl px-5 py-3 text-sm font-extrabold">＋ Комбоны себетке қосу</button>
+            </div>
+          </div>`;
+        return;
+      }
       const products = PRODUCTS.filter(product => product.category === activeCategory);
       if (!products.length) {
         $('productGrid').innerHTML = `<div class="col-span-full rounded-2xl border border-dashed border-[#59402c] px-5 py-12 text-center">
@@ -339,6 +404,19 @@
       showToast(product.name + ' себетке қосылды');
     }
 
+    function addComboToCart() {
+      const garnish = PRODUCTS.find(item => item.id === comboGarnishSelected);
+      const meat = PRODUCTS.find(item => item.id === comboMeatSelected);
+      if (!garnish || !meat) return;
+      const comboId = `combo-${garnish.id}-${meat.id}`;
+      const combo = { id:comboId, name:`Комбо: ${garnish.name} + ${meat.name}`, price:garnish.price + meat.price, weight:'300 г', qty:1 };
+      const existing = cart.find(item => item.id === comboId);
+      if (existing) existing.qty += 1;
+      else cart.push(combo);
+      renderCart();
+      showToast('Гарнир мен ет бір ыдысқа қосылды');
+    }
+
     function updateQty(productId, delta) {
       const item = cart.find(entry => entry.id === productId);
       if (!item) return;
@@ -349,7 +427,7 @@
 
     function renderCart() {
       const totalQty = cart.reduce((sum,item) => sum + item.qty, 0);
-      const total = cart.reduce((sum,item) => sum + item.price * item.qty, 0);
+      const total = cart.reduce((sum,item) => sum + (item.price + 80) * item.qty, 0);
       $('mobileCartCount').textContent = totalQty;
       $('trayCountBadge').textContent = totalQty + ' тағам';
       $('cartTotalSum').textContent = money(total);
@@ -367,7 +445,7 @@
         <div class="flex items-center justify-between gap-3 rounded-xl border border-[#493326] bg-[#21140f] p-3">
           <div class="min-w-0">
             <p class="truncate text-xs font-bold text-[#f5e8bd]">${escapeHtml(item.name)}</p>
-            <p class="mt-1 text-xs font-bold gold-text">${money(item.price * item.qty)}</p>
+            <p class="mt-1 text-xs font-bold gold-text">${money((item.price + 80) * item.qty)}</p><p class="mt-1 text-[10px] text-stone-500">${money(item.price)} + ${money(80)} ыдыс / дана</p>
           </div>
           <div class="flex shrink-0 items-center gap-3 rounded-lg border border-[#493326] bg-[#160e0b] px-2 py-1.5">
             <button type="button" aria-label="${escapeHtml(item.name)} санын азайту" onclick="updateQty('${item.id}',-1)" class="px-1 font-black gold-text">−</button>
@@ -430,9 +508,11 @@
       }
 
       const lines = cart.map((item,index) =>
-        `${index + 1}. ${item.name} × ${item.qty} — ${money(item.price * item.qty)}`
+        `${index + 1}. ${item.name} (${item.weight}) × ${item.qty} — ${money(item.price * item.qty)}\n   Бір реттік ыдыс: ${money(80 * item.qty)}`
       ).join('\n');
-      const total = cart.reduce((sum,item) => sum + item.price * item.qty, 0);
+      const foodTotal = cart.reduce((sum,item) => sum + item.price * item.qty, 0);
+      const dishTotal = cart.reduce((sum,item) => sum + 80 * item.qty, 0);
+      const total = foodTotal + dishTotal;
       const message = [
         'Сәлеметсіз бе! ❤️',
         'APORT ASHANA-дан тапсырыс!',
@@ -446,6 +526,8 @@
         '🛒 ТАПСЫРЫС:',
         lines,
         '',
+        `🍽 Тағамдар: ${money(foodTotal)}`,
+        `🥡 Бір реттік ыдыс: ${money(dishTotal)} (${cart.reduce((sum,item) => sum + item.qty, 0)} дана × 80 ₸)`,
         `💰 ЖАЛПЫ СОММА: ${money(total)}`,
         `📝 Ескертпе: ${comment || 'Жоқ'}`,
         '',
@@ -498,6 +580,7 @@
     }
     window.selectBranchById = selectBranchById;
     window.addToCart = addToCart;
+    window.addComboToCart = addComboToCart;
     window.updateQty = updateQty;
     window.addEventListener('load', initApp);
   </script>
